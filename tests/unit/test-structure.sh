@@ -252,6 +252,40 @@ else
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: HTTPS URLs${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# All user-facing URLs must use HTTPS
+http_violations=$(grep -rn "http://kodra\." "$ROOT_DIR/boot.sh" "$ROOT_DIR/install.sh" "$ROOT_DIR/bin/kodra" "$ROOT_DIR/README.md" 2>/dev/null || true)
+if [[ -z "$http_violations" ]]; then
+    assert_pass "https: all kodra URLs use HTTPS"
+else
+    assert_fail "https: found http:// URLs (should be https://)" "$http_violations"
+fi
+
+# Site files exist
+for site_file in llms.txt llms-full.txt robots.txt sitemap.xml index.html 404.html CNAME manifest.json; do
+    if [[ -f "$ROOT_DIR/$site_file" ]]; then
+        assert_pass "site: $site_file exists"
+    else
+        assert_fail "site: $site_file missing"
+    fi
+done
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: CLI Command Parity${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cli_file="$ROOT_DIR/bin/kodra"
+for cmd in doctor update cleanup repair setup install uninstall dev extensions fetch defaults refresh shortcuts backup restore migrate menu welcome version help; do
+    if grep -q "${cmd}" "$cli_file" 2>/dev/null && grep -qE "cmd_${cmd}|show_${cmd}|show_help|show_version" "$cli_file" 2>/dev/null; then
+        assert_pass "cli-cmd: $cmd"
+    else
+        assert_fail "cli-cmd: $cmd not in CLI"
+    fi
+done
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Summary
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo ""

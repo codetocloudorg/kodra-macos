@@ -68,22 +68,31 @@ show_help() {
         echo "    kodra refresh       Refresh shell configs"
         echo "    kodra defaults      Re-apply macOS system defaults"
         echo ""
+        echo "  Package Management"
+        echo "    kodra install       Install tools (interactive menu)"
+        echo "    kodra uninstall     Remove a specific tool"
+        echo ""
+        echo "  Backup & Recovery"
+        echo "    kodra backup        Create a dotfiles backup"
+        echo "    kodra backup list   List available backups"
+        echo "    kodra backup restore <name>  Restore from backup"
+        echo "    kodra restore       Restore from a backup"
+        echo "    kodra migrate       Run version migrations"
+        echo ""
         echo "  Development"
         echo "    kodra dev           Set up language runtimes (via mise)"
         echo "    kodra extensions    Manage VS Code extensions"
         echo "    kodra shortcuts     Show aliases and shortcuts"
         echo ""
-        echo "  Backup"
-        echo "    kodra backup        Create a dotfiles backup"
-        echo "    kodra backup list   List available backups"
-        echo "    kodra backup restore <name>  Restore from backup"
-        echo ""
         echo "  Info"
         echo "    kodra fetch         Show system info (fastfetch)"
+        echo "    kodra menu          Interactive TUI menu"
+        echo "    kodra welcome       Show welcome screen"
         echo "    kodra version       Show version"
         echo "    kodra help          Show this help"
         echo ""
         echo "  Tips:"
+        echo "    Run kodra menu for guided, interactive usage"
         echo "    Run kodra doctor after install to verify everything"
         echo "    Run kodra update to keep all tools current"
         echo "    Run kodra repair --all to fix any issues"
@@ -119,22 +128,31 @@ show_help() {
     echo -e "    ${C_LOGO_5}kodra refresh${C_RESET}       Refresh shell configs"
     echo -e "    ${C_LOGO_5}kodra defaults${C_RESET}      Re-apply macOS system defaults"
     echo ""
+    echo -e "  ${C_BOLD}Package Management${C_RESET}"
+    echo -e "    ${C_LOGO_5}kodra install${C_RESET}       Install tools (interactive menu)"
+    echo -e "    ${C_LOGO_5}kodra uninstall${C_RESET}     Remove a specific tool"
+    echo ""
+    echo -e "  ${C_BOLD}Backup & Recovery${C_RESET}"
+    echo -e "    ${C_LOGO_5}kodra backup${C_RESET}        Create a dotfiles backup"
+    echo -e "    ${C_LOGO_5}kodra backup list${C_RESET}   List available backups"
+    echo -e "    ${C_LOGO_5}kodra backup restore <name>${C_RESET}  Restore from backup"
+    echo -e "    ${C_LOGO_5}kodra restore${C_RESET}       Restore from a backup"
+    echo -e "    ${C_LOGO_5}kodra migrate${C_RESET}       Run version migrations"
+    echo ""
     echo -e "  ${C_BOLD}Development${C_RESET}"
     echo -e "    ${C_LOGO_5}kodra dev${C_RESET}           Set up language runtimes (via mise)"
     echo -e "    ${C_LOGO_5}kodra extensions${C_RESET}    Manage VS Code extensions"
     echo -e "    ${C_LOGO_5}kodra shortcuts${C_RESET}     Show aliases and shortcuts"
     echo ""
-    echo -e "  ${C_BOLD}Backup${C_RESET}"
-    echo -e "    ${C_LOGO_5}kodra backup${C_RESET}        Create a dotfiles backup"
-    echo -e "    ${C_LOGO_5}kodra backup list${C_RESET}   List available backups"
-    echo -e "    ${C_LOGO_5}kodra backup restore <name>${C_RESET}  Restore from backup"
-    echo ""
     echo -e "  ${C_BOLD}Info${C_RESET}"
     echo -e "    ${C_LOGO_5}kodra fetch${C_RESET}         Show system info (fastfetch)"
+    echo -e "    ${C_LOGO_5}kodra menu${C_RESET}          Interactive TUI menu"
+    echo -e "    ${C_LOGO_5}kodra welcome${C_RESET}       Show welcome screen"
     echo -e "    ${C_LOGO_5}kodra version${C_RESET}       Show version"
     echo -e "    ${C_LOGO_5}kodra help${C_RESET}          Show this help"
     echo ""
     echo -e "  ${C_DIM}Tips:${C_RESET}"
+    echo -e "  ${C_DIM}  Run kodra menu for guided, interactive usage${C_RESET}"
     echo -e "  ${C_DIM}  Run kodra doctor after install to verify everything${C_RESET}"
     echo -e "  ${C_DIM}  Run kodra update to keep all tools current${C_RESET}"
     echo -e "  ${C_DIM}  Run kodra repair --all to fix any issues${C_RESET}"
@@ -419,6 +437,154 @@ cmd_backup() {
     esac
 }
 
+cmd_restore() {
+    source "$KODRA_DIR/lib/backup.sh" 2>/dev/null || {
+        echo -e "  ${C_RED}✖${C_RESET} Failed to load backup library"
+        exit 1
+    }
+
+    if [[ -z "${1:-}" ]]; then
+        echo -e "  ${C_YELLOW}Available backups:${C_RESET}"
+        list_backups
+        echo ""
+        echo -e "  ${C_GRAY}Usage: kodra restore <backup-name>${C_RESET}"
+        return
+    fi
+    restore_backup "$@"
+}
+
+cmd_install() {
+    echo ""
+    echo -e "  ${C_PURPLE}Kodra macOS Install${C_RESET}"
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+    echo -e "  ${C_WHITE}What would you like to install?${C_RESET}"
+    echo ""
+    echo -e "  ${C_CYAN}1)${C_RESET} CLI tools (bat, eza, fzf, ripgrep, etc.)"
+    echo -e "  ${C_CYAN}2)${C_RESET} Cloud tools (az, azd, terraform, kubectl, etc.)"
+    echo -e "  ${C_CYAN}3)${C_RESET} Containers (colima, docker, lazydocker)"
+    echo -e "  ${C_CYAN}4)${C_RESET} Developer tools (mise, VS Code)"
+    echo -e "  ${C_CYAN}5)${C_RESET} Terminal (ghostty, starship, nerd-fonts)"
+    echo -e "  ${C_CYAN}6)${C_RESET} Everything"
+    echo ""
+    printf "  Choose [1-6]: "
+    read -n 1 -r choice
+    echo ""
+    echo ""
+
+    case "$choice" in
+        1) for f in "$KODRA_DIR/install/cli-tools/"*.sh; do bash "$f"; done ;;
+        2) for f in "$KODRA_DIR/install/cloud/"*.sh; do bash "$f"; done ;;
+        3) for f in "$KODRA_DIR/install/containers/"*.sh; do bash "$f"; done ;;
+        4) for f in "$KODRA_DIR/install/dev-tools/"*.sh; do bash "$f"; done ;;
+        5) for f in "$KODRA_DIR/install/terminal/"*.sh; do bash "$f"; done ;;
+        6) bash "$KODRA_DIR/install.sh" ;;
+        *) echo -e "  ${C_GRAY}No selection made${C_RESET}" ;;
+    esac
+}
+
+cmd_uninstall() {
+    local tool="${1:-}"
+    if [[ -z "$tool" ]]; then
+        echo ""
+        echo -e "  ${C_PURPLE}Kodra macOS Uninstall${C_RESET}"
+        echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+        echo ""
+        echo -e "  ${C_WHITE}Available tools to uninstall:${C_RESET}"
+        echo ""
+        for f in "$KODRA_DIR/uninstall/"*.sh; do
+            local name
+            name="$(basename "$f" .sh)"
+            echo -e "    ${C_CYAN}•${C_RESET} $name"
+        done
+        echo ""
+        echo -e "  ${C_GRAY}Usage: kodra uninstall <tool-name>${C_RESET}"
+        echo -e "  ${C_GRAY}Example: kodra uninstall azure-cli${C_RESET}"
+        return
+    fi
+
+    local script="$KODRA_DIR/uninstall/${tool}.sh"
+    if [[ -f "$script" ]]; then
+        bash "$script"
+    else
+        echo -e "  ${C_RED}✖${C_RESET} No uninstaller found for: $tool"
+        echo -e "  ${C_GRAY}Run: kodra uninstall (with no args) to see available tools${C_RESET}"
+        exit 1
+    fi
+}
+
+cmd_migrate() {
+    echo ""
+    echo -e "  ${C_PURPLE}Kodra macOS Migrations${C_RESET}"
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+
+    local migration_dir="$KODRA_DIR/migrations"
+    if [[ ! -d "$migration_dir" ]] || [[ -z "$(ls -A "$migration_dir" 2>/dev/null)" ]]; then
+        echo -e "  ${C_GREEN}✔${C_RESET} No migrations to run"
+        return
+    fi
+
+    for migration in "$migration_dir"/*.sh; do
+        local name
+        name="$(basename "$migration" .sh)"
+        local status
+        status="$(bash "$migration" status 2>/dev/null || echo "unknown")"
+        if [[ "$status" == "pending" ]]; then
+            echo -e "  ${C_CYAN}▶${C_RESET} Running migration: $name"
+            bash "$migration" up
+        else
+            echo -e "  ${C_GRAY}•${C_RESET} $name — already applied"
+        fi
+    done
+    echo ""
+}
+
+cmd_welcome() {
+    source "$KODRA_DIR/lib/ui.sh" 2>/dev/null || true
+    if command -v show_banner &>/dev/null; then
+        show_banner
+    else
+        show_help
+    fi
+}
+
+cmd_menu() {
+    echo ""
+    echo -e "  ${C_PURPLE}Kodra macOS Menu${C_RESET}"
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+    echo -e "  ${C_CYAN}1)${C_RESET} Doctor — check system health"
+    echo -e "  ${C_CYAN}2)${C_RESET} Update — update all tools"
+    echo -e "  ${C_CYAN}3)${C_RESET} Install — install tool categories"
+    echo -e "  ${C_CYAN}4)${C_RESET} Uninstall — remove a tool"
+    echo -e "  ${C_CYAN}5)${C_RESET} Repair — fix issues"
+    echo -e "  ${C_CYAN}6)${C_RESET} Backup — backup configs"
+    echo -e "  ${C_CYAN}7)${C_RESET} Setup — configure accounts"
+    echo -e "  ${C_CYAN}8)${C_RESET} Fetch — system info"
+    echo -e "  ${C_CYAN}9)${C_RESET} Defaults — re-apply macOS settings"
+    echo -e "  ${C_CYAN}0)${C_RESET} Exit"
+    echo ""
+    printf "  Choose [0-9]: "
+    read -n 1 -r choice
+    echo ""
+    echo ""
+
+    case "$choice" in
+        1) cmd_doctor ;;
+        2) cmd_update ;;
+        3) cmd_install ;;
+        4) cmd_uninstall ;;
+        5) cmd_repair ;;
+        6) cmd_backup ;;
+        7) cmd_setup ;;
+        8) cmd_fetch ;;
+        9) cmd_defaults ;;
+        0) echo -e "  ${C_GRAY}Bye!${C_RESET}" ;;
+        *) echo -e "  ${C_GRAY}Invalid choice${C_RESET}" ;;
+    esac
+}
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Command router
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -428,6 +594,8 @@ case "${1:-help}" in
     cleanup)    cmd_cleanup ;;
     repair|fix) cmd_repair "$2" ;;
     setup)      cmd_setup ;;
+    install)    cmd_install ;;
+    uninstall)  cmd_uninstall "$2" ;;
     dev)        cmd_dev ;;
     extensions) cmd_extensions ;;
     fetch)      cmd_fetch ;;
@@ -435,6 +603,10 @@ case "${1:-help}" in
     refresh)    cmd_refresh ;;
     shortcuts)  cmd_shortcuts ;;
     backup)     cmd_backup "$2" "$3" ;;
+    restore)    cmd_restore "$2" ;;
+    migrate)    cmd_migrate ;;
+    menu)       cmd_menu ;;
+    welcome)    cmd_welcome ;;
     version)    show_version ;;
     help|--help|-h) show_help ;;
     *)

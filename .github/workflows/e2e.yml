@@ -451,6 +451,19 @@ jobs:
           echo "✅ uninstall.sh has valid syntax"
 
       # ─────────────────────────────────────────────────────────────
+      # Verify HTTPS site is live
+      # ─────────────────────────────────────────────────────────────
+      - name: "🌐 Verify HTTPS site (kodra.macos.codetocloud.io)"
+        if: always()
+        run: |
+          echo "Testing HTTPS endpoints..."
+          curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | head -3
+          echo ""
+          curl -fsSL https://kodra.macos.codetocloud.io/llms.txt | head -3
+          echo ""
+          echo "✅ HTTPS site serving correctly"
+
+      # ─────────────────────────────────────────────────────────────
       # Upload install logs
       # ─────────────────────────────────────────────────────────────
       - name: "📦 Upload install logs"
