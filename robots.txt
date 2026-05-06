@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /boot.sh
+Disallow: /
+
+Sitemap: https://kodra.macos.codetocloud.io/sitemap.xml

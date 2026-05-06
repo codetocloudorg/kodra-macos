@@ -1,0 +1,21 @@
+{
+    "name": "Kodra macOS - Azure Developer Environment for macOS",
+    "short_name": "Kodra macOS",
+    "description": "One-command Azure developer environment for macOS. 30+ cloud-native tools, Homebrew + native .pkg installs, zero config.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#0a0a0f",
+    "theme_color": "#0a0a0f",
+    "orientation": "any",
+    "categories": ["developer tools", "productivity", "utilities"],
+    "lang": "en",
+    "icons": [
+        {
+            "src": "/assets/favicon.ico.png",
+            "sizes": "any",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

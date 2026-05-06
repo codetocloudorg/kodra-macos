@@ -1,0 +1,53 @@
+# Kodra macOS
+
+> One-command Azure developer environment for macOS
+
+Kodra macOS transforms a fresh macOS install into a fully-configured Azure cloud-native development workstation in minutes. Built by [Code To Cloud Inc.](https://www.codetocloud.io)
+
+## Quick Start
+
+```bash
+curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
+```
+
+## What Kodra macOS Installs
+
+- Azure CLI, Azure Developer CLI (azd), Bicep, Terraform, OpenTofu
+- GitHub CLI with Copilot CLI for AI-powered terminal workflows
+- Colima + Docker CLI (no Docker Desktop license required), lazydocker
+- Kubernetes: kubectl, Helm, k9s
+- Modern terminal: Ghostty, Starship prompt, JetBrainsMono Nerd Font
+- CLI tools: bat, eza, fd, fzf, ripgrep, zoxide, btop, fastfetch, yq
+- Git: lazygit
+- Developer tools: mise (polyglot runtime manager), VS Code with extensions
+- PowerShell 7 via native .pkg installer
+
+## Key Commands
+
+- `kodra doctor` — Check system health and tool status
+- `kodra doctor --fix` — Auto-reinstall missing tools
+- `kodra update` — Update all 30+ installed tools
+- `kodra repair` — Interactive repair menu
+- `kodra repair --all` — Repair everything automatically
+- `kodra backup` — Backup/restore dotfiles and configs
+- `kodra setup` — Re-run first-time configuration
+- `kodra fetch` — Show system info (fastfetch)
+- `kodra defaults` — Re-apply macOS developer settings
+- `kodra version` — Show version
+- `kodra help` — Show all commands
+
+## Links
+
+- Website: https://kodra.macos.codetocloud.io
+- GitHub: https://github.com/codetocloudorg/kodra-macos
+- Main Kodra (Full Ubuntu): https://kodra.codetocloud.io
+- Kodra WSL: https://kodra.wsl.codetocloud.io
+- Discord: https://discord.gg/vwfwq2EpXJ
+- Parent Company: https://www.codetocloud.io
+
+## Details
+
+- License: MIT
+- Platforms: macOS 14+ (Sonoma or later), Apple Silicon (M1/M2/M3/M4)
+- Version: 0.1.0
+- Developed by: Code To Cloud Inc. (Calgary, Alberta, Canada)

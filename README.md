@@ -143,10 +143,14 @@ kodra-macos/
 ├── uninstall.sh            # Clean removal
 ├── bin/kodra               # CLI tool
 ├── lib/                    # Shared libraries
-│   ├── logging.sh
-│   ├── utils.sh
-│   ├── checks.sh
-│   └── state.sh
+│   ├── logging.sh          # Color output helpers
+│   ├── utils.sh            # run_installer, brew_install, has_command
+│   ├── checks.sh           # macOS version, Apple Silicon checks
+│   ├── state.sh            # JSON state management
+│   ├── backup.sh           # Dotfile backup/restore
+│   ├── config.sh           # Key=value settings
+│   ├── ui.sh               # Banners, progress, spinners
+│   └── package.sh          # Homebrew package abstraction
 ├── install/
 │   ├── cli-tools/          # bat, eza, fzf, gh, ripgrep, etc.
 │   ├── cloud/              # az, azd, terraform, kubectl, etc.
@@ -154,9 +158,15 @@ kodra-macos/
 │   ├── dev-tools/          # mise, vscode
 │   ├── terminal/           # ghostty, starship, nerd-fonts, shell-config
 │   └── desktop/            # dock, finder, system defaults
+├── uninstall/              # Per-tool uninstallers (15 scripts)
+├── migrations/             # Version migration scripts
+├── configs/
+│   └── completions/        # zsh + bash tab completions
 ├── tests/
-│   ├── unit/               # Fast structural tests
+│   ├── unit/               # Fast structural tests (139 tests)
 │   └── integration/        # Real install tests (CI)
+├── llms.txt                # LLM-friendly summary
+├── llms-full.txt           # Full LLM documentation
 └── .github/workflows/
     ├── ci.yml              # Lint + unit tests
     └── e2e.yml             # Full install on Apple Silicon

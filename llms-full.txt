@@ -1,0 +1,191 @@
+# Kodra macOS — Full Documentation for LLMs
+
+> Comprehensive technical reference for AI assistants and language models.
+
+## Overview
+
+Kodra macOS is a one-command Azure developer environment for macOS on Apple Silicon. It installs and configures 30+ cloud-native development tools with zero manual configuration. Built by [Code To Cloud Inc.](https://www.codetocloud.io) in Calgary, Alberta, Canada.
+
+- **Version**: 0.1.0
+- **Platform**: macOS 14 (Sonoma) or later, Apple Silicon (M1/M2/M3/M4)
+- **License**: MIT
+- **Website**: https://kodra.macos.codetocloud.io
+- **GitHub**: https://github.com/codetocloudorg/kodra-macos
+
+## Installation
+
+```bash
+curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
+```
+
+This clones the repo to `~/.kodra` and runs `install.sh`, which:
+1. Checks macOS version and Apple Silicon architecture
+2. Installs/updates Homebrew
+3. Presents an interactive 4-profile install menu (Full / Cloud + Containers / CLI Only / Custom)
+4. Installs all selected tools via Homebrew formulae, casks, and native .pkg
+5. Configures shell (zsh), terminal (Ghostty), prompt (Starship), and macOS defaults
+6. Logs everything to `~/.local/state/kodra/install.log`
+
+## Tools Installed
+
+### CLI Tools (12)
+- **bat** — Cat with syntax highlighting (`brew install bat`)
+- **btop** — System resource monitor (`brew install btop`)
+- **eza** — Modern `ls` replacement (`brew install eza`)
+- **fastfetch** — System info display (`brew install fastfetch`)
+- **fd** — Modern `find` replacement (`brew install fd`)
+- **fzf** — Fuzzy finder (`brew install fzf`)
+- **gh** — GitHub CLI (`brew install gh`)
+- **gh copilot** — GitHub Copilot CLI (`gh extension install github/gh-copilot`)
+- **lazygit** — Git TUI (`brew install lazygit`)
+- **ripgrep** — Fast grep replacement (`brew install ripgrep`)
+- **yq** — YAML processor (`brew install yq`)
+- **zoxide** — Smart `cd` command (`brew install zoxide`)
+
+### Cloud & Infrastructure (9)
+- **az** — Azure CLI (`brew install azure-cli`)
+- **azd** — Azure Developer CLI (`brew install azd`)
+- **bicep** — Azure Bicep (`az bicep install`)
+- **terraform** — HashiCorp Terraform (`brew install terraform`)
+- **tofu** — OpenTofu (`brew install opentofu`)
+- **kubectl** — Kubernetes CLI (`brew install kubectl`)
+- **helm** — Kubernetes package manager (`brew install helm`)
+- **k9s** — Kubernetes TUI (`brew install k9s`)
+- **pwsh** — PowerShell 7 (native `.pkg` from Microsoft GitHub releases)
+
+### Containers (3)
+- **colima** — Lightweight container runtime, replaces Docker Desktop (`brew install colima`)
+- **docker** — Docker CLI + Compose plugin (`brew install docker docker-compose`)
+- **lazydocker** — Docker TUI (`brew install lazydocker`)
+
+### Terminal & Shell (4)
+- **Ghostty** — GPU-accelerated terminal with Tokyo Night theme (`brew install --cask ghostty`)
+- **Starship** — Cross-shell prompt with Kodra config (`brew install starship`)
+- **Nerd Fonts** — JetBrainsMono + Meslo fonts (`brew install --cask font-jetbrains-mono-nerd-font`)
+- **Shell config** — zsh aliases, completions, FZF integration at `~/.config/kodra/shell.zsh`
+
+### Developer Tools (2)
+- **mise** — Polyglot runtime manager for Node, Python, Go, etc. (`brew install mise`)
+- **VS Code** — Editor with Copilot + Azure extensions (`brew install --cask visual-studio-code`)
+
+### macOS Defaults
+Developer-optimized system settings via `defaults write`:
+- Fast key repeat (InitialKeyRepeat=15, KeyRepeat=2), disabled autocorrect
+- Dock: auto-hide, minimize-to-application, no recent apps, small icon size
+- Finder: show all extensions, hidden files, path bar, status bar
+- Dark mode with purple accent color
+- Screenshots saved to `~/Screenshots` as PNG
+
+## CLI Commands
+
+```bash
+kodra doctor          # Check 27 tools across 4 categories
+kodra doctor --fix    # Auto-reinstall missing tools
+kodra update          # brew update && brew upgrade
+kodra cleanup         # brew cleanup + cache purge
+kodra repair          # Interactive repair menu
+kodra repair --all    # Repair all tools automatically
+kodra backup          # Create dotfile/config backup
+kodra backup list     # List available backups
+kodra backup restore  # Restore from backup
+kodra setup           # Re-run first-time configuration
+kodra dev             # Show dev environment info
+kodra extensions      # Manage VS Code extensions
+kodra fetch           # System info via fastfetch
+kodra defaults        # Re-apply macOS developer settings
+kodra refresh         # Reload shell configuration
+kodra shortcuts       # Show all configured aliases
+kodra version         # Show Kodra version
+kodra help            # Show all available commands
+```
+
+## Architecture
+
+```
+kodra-macos/
+├── boot.sh                 # Bootstrap (curl | bash entry point)
+├── install.sh              # Main orchestrator with interactive menu
+├── uninstall.sh            # Clean removal of all tools
+├── bin/kodra               # CLI tool (30+ subcommands)
+├── lib/
+│   ├── logging.sh          # Color output helpers
+│   ├── utils.sh            # run_installer, brew_install, has_command
+│   ├── checks.sh           # macOS version, Apple Silicon, Homebrew checks
+│   ├── state.sh            # JSON state management via python3
+│   ├── backup.sh           # Dotfile backup/restore
+│   ├── config.sh           # Key=value settings management
+│   ├── ui.sh               # ASCII banners, progress, spinners
+│   └── package.sh          # Homebrew package abstraction
+├── install/
+│   ├── cli-tools/          # 12 CLI tool installers
+│   ├── cloud/              # 9 cloud tool installers
+│   ├── containers/         # 3 container tool installers
+│   ├── dev-tools/          # 2 dev tool installers
+│   ├── terminal/           # 4 terminal/shell installers
+│   └── desktop/            # 3 macOS defaults scripts
+├── uninstall/              # 15 per-tool uninstallers
+├── migrations/             # Version migration scripts
+├── configs/
+│   ├── btop.conf           # btop configuration
+│   ├── fastfetch.jsonc     # fastfetch configuration
+│   ├── aliases.sh          # Shell aliases
+│   └── completions/        # zsh + bash completions for kodra
+├── packages/               # Package lists (cli-tools, core, cloud, etc.)
+├── tests/
+│   ├── unit/               # 139 structural tests
+│   └── integration/        # Full install E2E tests
+├── docs/                   # FAQ, troubleshooting, cheatsheet, roadmap
+└── .github/workflows/
+    ├── ci.yml              # Lint + unit tests on macos-15
+    └── e2e.yml             # Full install E2E on Apple Silicon
+```
+
+## Key Paths
+
+- **Kodra home**: `~/.kodra`
+- **Config**: `~/.config/kodra/`
+- **Settings**: `~/.config/kodra/settings`
+- **Shell config**: `~/.config/kodra/shell.zsh`
+- **State**: `~/.local/state/kodra/state.json`
+- **Backups**: `~/.config/kodra/backups/`
+- **Install log**: `~/.local/state/kodra/install.log`
+- **Homebrew**: `/opt/homebrew` (Apple Silicon) or `/usr/local` (Intel)
+
+## Comparison with Kodra Variants
+
+| Feature | Kodra (Ubuntu) | Kodra WSL | Kodra macOS |
+|---------|---------------|-----------|-------------|
+| OS | Ubuntu 24.04 | WSL2 Ubuntu | macOS 14+ |
+| Package Manager | apt | apt | Homebrew + .pkg |
+| Desktop | GNOME | Windows Terminal | Native macOS |
+| Docker | Docker CE | Docker CE | Colima |
+| Terminal | Ghostty | Oh My Posh | Ghostty + Starship |
+| Architecture | x86_64/arm64 | x86_64 | Apple Silicon |
+| Shell | bash | bash | zsh |
+| CI Runners | ubuntu-24.04 | windows-2022 | macos-15 |
+
+## Uninstall
+
+```bash
+bash ~/.kodra/uninstall.sh
+```
+
+Or granular per-tool removal:
+```bash
+bash ~/.kodra/uninstall/azure-cli.sh
+bash ~/.kodra/uninstall/colima.sh
+bash ~/.kodra/uninstall/vscode.sh
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/codetocloudorg/kodra-macos/blob/main/CONTRIBUTING.md).
+
+## Links
+
+- Website: https://kodra.macos.codetocloud.io
+- GitHub: https://github.com/codetocloudorg/kodra-macos
+- Main Kodra: https://kodra.codetocloud.io
+- Kodra WSL: https://kodra.wsl.codetocloud.io
+- Discord: https://discord.gg/vwfwq2EpXJ
+- Code To Cloud: https://www.codetocloud.io
