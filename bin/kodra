@@ -73,6 +73,11 @@ show_help() {
         echo "    kodra extensions    Manage VS Code extensions"
         echo "    kodra shortcuts     Show aliases and shortcuts"
         echo ""
+        echo "  Backup"
+        echo "    kodra backup        Create a dotfiles backup"
+        echo "    kodra backup list   List available backups"
+        echo "    kodra backup restore <name>  Restore from backup"
+        echo ""
         echo "  Info"
         echo "    kodra fetch         Show system info (fastfetch)"
         echo "    kodra version       Show version"
@@ -118,6 +123,11 @@ show_help() {
     echo -e "    ${C_LOGO_5}kodra dev${C_RESET}           Set up language runtimes (via mise)"
     echo -e "    ${C_LOGO_5}kodra extensions${C_RESET}    Manage VS Code extensions"
     echo -e "    ${C_LOGO_5}kodra shortcuts${C_RESET}     Show aliases and shortcuts"
+    echo ""
+    echo -e "  ${C_BOLD}Backup${C_RESET}"
+    echo -e "    ${C_LOGO_5}kodra backup${C_RESET}        Create a dotfiles backup"
+    echo -e "    ${C_LOGO_5}kodra backup list${C_RESET}   List available backups"
+    echo -e "    ${C_LOGO_5}kodra backup restore <name>${C_RESET}  Restore from backup"
     echo ""
     echo -e "  ${C_BOLD}Info${C_RESET}"
     echo -e "    ${C_LOGO_5}kodra fetch${C_RESET}         Show system info (fastfetch)"
@@ -386,6 +396,29 @@ cmd_dev() {
     echo -e "  ${C_GREEN}✔${C_RESET} Runtimes configured"
 }
 
+cmd_backup() {
+    source "$KODRA_DIR/lib/backup.sh" 2>/dev/null || {
+        echo -e "  ${C_RED}✖${C_RESET} Failed to load backup library"
+        exit 1
+    }
+
+    local subcmd="${1:-create}"
+    shift 2>/dev/null || true
+
+    case "$subcmd" in
+        create)  create_backup "$@" ;;
+        list)    list_backups ;;
+        restore) restore_backup "$@" ;;
+        delete)  delete_backup "$@" ;;
+        verify)  verify_backup "$@" ;;
+        *)
+            echo -e "  ${C_RED}Unknown backup command:${C_RESET} $subcmd"
+            echo -e "  ${C_GRAY}Usage: kodra backup {create|list|restore|delete|verify}${C_RESET}"
+            exit 1
+            ;;
+    esac
+}
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Command router
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -401,6 +434,7 @@ case "${1:-help}" in
     defaults)   cmd_defaults ;;
     refresh)    cmd_refresh ;;
     shortcuts)  cmd_shortcuts ;;
+    backup)     cmd_backup "$2" "$3" ;;
     version)    show_version ;;
     help|--help|-h) show_help ;;
     *)

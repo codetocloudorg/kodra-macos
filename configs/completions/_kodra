@@ -1,0 +1,75 @@
+#compdef kodra
+
+# Kodra macOS — Zsh Completion
+# Install: copy to a directory in $fpath (e.g., /opt/homebrew/share/zsh/site-functions/)
+
+_kodra() {
+    local -a commands
+    commands=(
+        'doctor:Check system health and tool status'
+        'repair:Interactive repair menu'
+        'update:Update all installed tools'
+        'cleanup:Clean brew cache, Docker images, logs'
+        'setup:Re-run first-time configuration'
+        'dev:Set up language runtimes via mise'
+        'extensions:Manage VS Code extensions'
+        'fetch:Show system info via fastfetch'
+        'defaults:Re-apply macOS system defaults'
+        'refresh:Refresh shell configs'
+        'shortcuts:Show aliases and shortcuts'
+        'version:Show version'
+        'help:Show help'
+        'backup:Backup and restore dotfiles'
+    )
+
+    local -a backup_commands
+    backup_commands=(
+        'create:Create a new backup'
+        'list:List available backups'
+        'restore:Restore from a backup'
+        'delete:Delete a backup'
+        'verify:Verify backup integrity'
+    )
+
+    _arguments -C \
+        '1:command:->command' \
+        '*::arg:->args'
+
+    case "$state" in
+        command)
+            _describe -t commands 'kodra command' commands
+            ;;
+        args)
+            case "${words[1]}" in
+                doctor)
+                    _arguments '--fix[Auto-reinstall missing tools]'
+                    ;;
+                repair)
+                    _arguments '--all[Repair everything automatically]'
+                    ;;
+                backup)
+                    _arguments -C \
+                        '1:backup command:->backup_cmd' \
+                        '*::backup arg:->backup_args'
+                    case "$state" in
+                        backup_cmd)
+                            _describe -t backup_commands 'backup command' backup_commands
+                            ;;
+                        backup_args)
+                            case "${words[1]}" in
+                                restore|delete|verify)
+                                    _files -W "${XDG_CONFIG_HOME:-$HOME/.config}/kodra/backups"
+                                    ;;
+                            esac
+                            ;;
+                    esac
+                    ;;
+                *)
+                    _arguments '--verbose[Enable verbose output]'
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_kodra "$@"
