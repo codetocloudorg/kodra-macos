@@ -3,7 +3,7 @@
 # Kodra macOS — Utility Functions
 #
 
-# Run an installer script with error handling
+# Run an installer script with error handling and failure tracking
 run_installer() {
     local script="$1"
     local name
@@ -14,22 +14,22 @@ run_installer() {
         return 1
     fi
 
+    KODRA_INSTALL_COUNT=$((${KODRA_INSTALL_COUNT:-0} + 1))
+
     log_info "Installing $name..."
 
-    if [[ "$KODRA_DEBUG" == "true" ]]; then
-        if bash "$script" 2>&1; then
-            log_success "$name installed"
-            save_state "tool.$name" "installed"
-        else
+    if bash "$script" 2>&1; then
+        log_success "$name installed"
+        save_state "tool.$name" "installed"
+    else
+        if [[ "$KODRA_DEBUG" == "true" ]]; then
             log_error "$name failed (continuing in debug mode)"
             save_state "tool.$name" "failed"
-        fi
-    else
-        if bash "$script" 2>&1; then
-            log_success "$name installed"
-            save_state "tool.$name" "installed"
+            KODRA_FAIL_COUNT=$((${KODRA_FAIL_COUNT:-0} + 1))
+            KODRA_FAILED_INSTALLS="${KODRA_FAILED_INSTALLS}${name}\n"
         else
             log_error "$name installation failed"
+            save_state "tool.$name" "failed"
             exit 1
         fi
     fi

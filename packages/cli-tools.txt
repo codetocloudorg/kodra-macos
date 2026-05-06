@@ -1,0 +1,10 @@
+# CLI tools installed via Homebrew
+bat
+btop
+eza
+fastfetch
+fd
+fzf
+ripgrep
+yq
+zoxide

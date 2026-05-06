@@ -1,0 +1,4 @@
+# Cask applications (GUI / .app)
+ghostty
+visual-studio-code
+font-jetbrains-mono-nerd-font

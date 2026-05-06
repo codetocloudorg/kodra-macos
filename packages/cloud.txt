@@ -1,0 +1,8 @@
+# Cloud and infrastructure tools
+azure-cli
+azd
+terraform
+opentofu
+kubectl
+helm
+k9s

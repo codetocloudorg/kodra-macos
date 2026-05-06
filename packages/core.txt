@@ -1,0 +1,4 @@
+# Core tools (Git, GitHub, shell)
+gh
+lazygit
+starship

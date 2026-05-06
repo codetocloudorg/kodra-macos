@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Discord Community
+    url: https://discord.gg/vwfwq2EpXJ
+    about: Join our Discord for questions and discussion
+  - name: Kodra Website
+    url: https://kodra.codetocloud.io
+    about: Visit the Kodra project website

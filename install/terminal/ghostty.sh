@@ -25,4 +25,13 @@ confirm-close-surface = false
 # macOS native
 macos-titlebar-style = tabs
 macos-option-as-alt = true
+
+# Split keybindings (Cmd+D vertical, Cmd+Shift+D horizontal)
+keybind = super+d=new_split:right
+keybind = super+shift+d=new_split:down
+keybind = super+shift+enter=toggle_split_zoom
+keybind = super+alt+left=goto_split:left
+keybind = super+alt+right=goto_split:right
+keybind = super+alt+up=goto_split:top
+keybind = super+alt+down=goto_split:bottom
 EOF
