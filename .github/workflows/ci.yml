@@ -1,4 +1,4 @@
-name: CI
+name: macOS Lint & Unit Tests
 
 # ╔══════════════════════════════════════════════════════════════════╗
 # ║  Kodra macOS CI Pipeline — A Code To Cloud Project ☁️           ║
