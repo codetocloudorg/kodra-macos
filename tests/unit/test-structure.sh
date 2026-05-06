@@ -253,6 +253,18 @@ UNINSTALL_SCRIPTS=(
     "uninstall/starship.sh"
     "uninstall/terraform.sh"
     "uninstall/vscode.sh"
+    "uninstall/opentofu.sh"
+    "uninstall/bicep.sh"
+    "uninstall/copilot-cli.sh"
+    "uninstall/azd.sh"
+    "uninstall/bat.sh"
+    "uninstall/btop.sh"
+    "uninstall/eza.sh"
+    "uninstall/fd.sh"
+    "uninstall/fzf.sh"
+    "uninstall/ripgrep.sh"
+    "uninstall/yq.sh"
+    "uninstall/zoxide.sh"
 )
 
 for f in "${UNINSTALL_SCRIPTS[@]}"; do
