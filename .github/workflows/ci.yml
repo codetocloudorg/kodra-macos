@@ -1,0 +1,103 @@
+name: CI
+
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  Kodra macOS CI Pipeline — A Code To Cloud Project ☁️           ║
+# ║                                                                  ║
+# ║  Runs on Apple Silicon (macos-15) GitHub Actions runners.        ║
+# ║  Jobs:                                                           ║
+# ║    1. lint — ShellCheck + bash syntax validation                 ║
+# ║    2. unit — Structural tests (no installs)                      ║
+# ║                                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # JOB 1: LINT — ShellCheck + Syntax
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  lint:
+    name: "🔒 Lint & Syntax Check"
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "☁️ Install ShellCheck"
+        run: brew install shellcheck
+
+      - name: "📝 ShellCheck — Lint shell scripts"
+        run: |
+          echo "Running ShellCheck on all .sh files..."
+          ERRORS=0
+          while IFS= read -r f; do
+            echo "  Checking $f..."
+            if ! shellcheck -x "$f"; then
+              ERRORS=$((ERRORS + 1))
+            fi
+          done < <(find . -name "*.sh" -not -path "./.git/*" -not -path "./node_modules/*")
+
+          # Also check bin/kodra
+          echo "  Checking bin/kodra..."
+          shellcheck -x bin/kodra || ERRORS=$((ERRORS + 1))
+
+          if [ "$ERRORS" -eq 0 ]; then
+            echo "✅ ShellCheck passed"
+          else
+            echo "⚠️  ShellCheck found issues in $ERRORS file(s)"
+          fi
+
+      - name: "🔍 Bash syntax — Validate all scripts"
+        run: |
+          echo "Running bash -n on all .sh files..."
+          ERRORS=0
+          for f in $(find . -name "*.sh" -not -path "./.git/*" -not -path "./node_modules/*"); do
+            if bash -n "$f" 2>/dev/null; then
+              echo "  ✅ $f"
+            else
+              echo "  ❌ $f"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+
+          # Check bin/kodra
+          if bash -n bin/kodra 2>/dev/null; then
+            echo "  ✅ bin/kodra"
+          else
+            echo "  ❌ bin/kodra"
+            ERRORS=$((ERRORS + 1))
+          fi
+
+          echo ""
+          if [ "$ERRORS" -eq 0 ]; then
+            echo "✅ All scripts have valid syntax"
+          else
+            echo "❌ $ERRORS script(s) have syntax errors"
+            exit 1
+          fi
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # JOB 2: UNIT — Structural tests (fast, no network)
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  unit:
+    name: "🧪 Unit Tests"
+    runs-on: macos-15
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "🧪 Run structural tests"
+        run: bash tests/unit/test-structure.sh

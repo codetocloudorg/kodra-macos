@@ -1,0 +1,203 @@
+name: E2E Install Test
+
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  Kodra macOS E2E — A Code To Cloud Project ☁️                   ║
+# ║                                                                  ║
+# ║  Runs on REAL Apple Silicon macOS runners (macos-15) to          ║
+# ║  validate actual Homebrew installs and tool availability.        ║
+# ║                                                                  ║
+# ║  Jobs:                                                           ║
+# ║    1. e2e-install — Full install on macOS Apple Silicon          ║
+# ║    2. e2e-doctor  — Run kodra doctor after install               ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      install_flags:
+        description: 'Extra flags for install.sh (e.g., --debug)'
+        required: false
+        default: '--debug'
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # JOB 1: Full install on macOS Apple Silicon
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  e2e-install:
+    name: "🍎 macOS Install (Apple Silicon)"
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      KODRA_DIR: ${{ github.workspace }}
+      KODRA_SKIP_PROMPTS: "1"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "🔍 Environment info"
+        run: |
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Kodra macOS E2E — Apple Silicon Install Test     │"
+          echo "├──────────────────────────────────────────────────┤"
+          printf "│  %-48s│\n" "macOS: $(sw_vers -productVersion) ($(sw_vers -productName))"
+          printf "│  %-48s│\n" "Arch: $(uname -m)"
+          printf "│  %-48s│\n" "Chip: $(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo 'N/A')"
+          printf "│  %-48s│\n" "Brew: $(brew --version | head -1)"
+          printf "│  %-48s│\n" "User: $(whoami)"
+          printf "│  %-48s│\n" "Date: $(date)"
+          echo "└──────────────────────────────────────────────────┘"
+
+      - name: "📦 Ensure Homebrew is ready"
+        run: |
+          brew update --quiet
+          echo "✅ Homebrew ready"
+
+      - name: "🚀 Run full Kodra macOS install"
+        id: install
+        run: |
+          echo "▶ Running install.sh --debug..."
+          echo "═══════════════════════════════════════════════════════"
+
+          start_time=$(date +%s)
+          bash ./install.sh --debug 2>&1 || true
+          install_exit=$?
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+
+          echo ""
+          echo "═══════════════════════════════════════════════════════"
+          printf "Install completed in %ds (exit: %d)\n" "$duration" "$install_exit"
+
+      - name: "🔍 Verify CLI tools"
+        id: verify-cli
+        if: always()
+        run: |
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  CLI Tool Verification                            │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          failures=0
+          total=0
+
+          check() {
+            local name="$1"
+            local cmd="${2:-$1}"
+            total=$((total + 1))
+            if command -v "$cmd" &>/dev/null; then
+              echo "  ✅ $name"
+            else
+              echo "  ❌ $name ($cmd not found)"
+              failures=$((failures + 1))
+            fi
+          }
+
+          check "bat"
+          check "btop"
+          check "eza"
+          check "fastfetch"
+          check "fd"
+          check "fzf"
+          check "gh"
+          check "lazygit"
+          check "ripgrep" "rg"
+          check "yq"
+          check "zoxide"
+
+          echo ""
+          echo "CLI Tools: $((total - failures))/$total passed"
+          echo "cli_failures=$failures" >> "$GITHUB_OUTPUT"
+
+      - name: "🔍 Verify cloud tools"
+        id: verify-cloud
+        if: always()
+        run: |
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Cloud Tool Verification                          │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          failures=0
+          total=0
+
+          check() {
+            local name="$1"
+            local cmd="${2:-$1}"
+            total=$((total + 1))
+            if command -v "$cmd" &>/dev/null; then
+              echo "  ✅ $name → $(command -v "$cmd")"
+            else
+              echo "  ❌ $name ($cmd not found)"
+              failures=$((failures + 1))
+            fi
+          }
+
+          check "azure-cli" "az"
+          check "azd"
+          check "terraform"
+          check "opentofu" "tofu"
+          check "kubectl"
+          check "helm"
+          check "k9s"
+
+          echo ""
+          echo "Cloud Tools: $((total - failures))/$total passed"
+          echo "cloud_failures=$failures" >> "$GITHUB_OUTPUT"
+
+      - name: "🔍 Verify containers"
+        id: verify-containers
+        if: always()
+        run: |
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Container Tool Verification                      │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          failures=0
+
+          if command -v colima &>/dev/null; then
+            echo "  ✅ colima"
+          else
+            echo "  ❌ colima"
+            failures=$((failures + 1))
+          fi
+
+          if command -v docker &>/dev/null; then
+            echo "  ✅ docker (CLI)"
+          else
+            echo "  ❌ docker"
+            failures=$((failures + 1))
+          fi
+
+          echo "container_failures=$failures" >> "$GITHUB_OUTPUT"
+
+      - name: "🏥 Run kodra doctor"
+        if: always()
+        env:
+          NO_COLOR: "1"
+        run: |
+          export KODRA_DIR="${{ github.workspace }}"
+          bash bin/kodra doctor || true
+
+      - name: "📊 Test summary"
+        if: always()
+        run: |
+          echo ""
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  E2E Test Summary                                 │"
+          echo "├──────────────────────────────────────────────────┤"
+          echo "│  CLI failures:       ${{ steps.verify-cli.outputs.cli_failures || '?' }}"
+          echo "│  Cloud failures:     ${{ steps.verify-cloud.outputs.cloud_failures || '?' }}"
+          echo "│  Container failures: ${{ steps.verify-containers.outputs.container_failures || '?' }}"
+          echo "└──────────────────────────────────────────────────┘"

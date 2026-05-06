@@ -1,0 +1,237 @@
+#!/usr/bin/env bash
+#
+# Kodra macOS CLI
+# Main command interface
+#
+
+KODRA_DIR="${KODRA_DIR:-$HOME/.kodra}"
+KODRA_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/kodra"
+
+# Colors
+C_RESET='\033[0m'
+C_RED='\033[0;31m'
+C_GREEN='\033[0;32m'
+C_YELLOW='\033[0;33m'
+C_BLUE='\033[0;34m'
+C_CYAN='\033[0;36m'
+C_WHITE='\033[1;37m'
+C_GRAY='\033[0;90m'
+C_PURPLE='\033[38;5;135m'
+
+show_version() {
+    if [[ -f "$KODRA_DIR/VERSION" ]]; then
+        cat "$KODRA_DIR/VERSION"
+    else
+        echo "unknown"
+    fi
+}
+
+show_help() {
+    local C_LOGO_1='\033[38;5;135m'
+    local C_LOGO_2='\033[38;5;141m'
+    local C_LOGO_3='\033[38;5;147m'
+    local C_LOGO_4='\033[38;5;117m'
+    local C_LOGO_5='\033[38;5;87m'
+    local C_DIM='\033[2m'
+    local C_BOLD='\033[1m'
+
+    local ver
+    ver="$(show_version)"
+
+    echo ""
+    echo -e "  ${C_LOGO_1}██╗  ██╗ ██████╗ ██████╗ ██████╗  █████╗${C_RESET}"
+    echo -e "  ${C_LOGO_2}██║ ██╔╝██╔═══██╗██╔══██╗██╔══██╗██╔══██╗${C_RESET}"
+    echo -e "  ${C_LOGO_3}█████╔╝ ██║   ██║██║  ██║██████╔╝███████║${C_RESET}"
+    echo -e "  ${C_LOGO_4}██╔═██╗ ██║   ██║██║  ██║██╔══██╗██╔══██║${C_RESET}"
+    echo -e "  ${C_LOGO_5}██║  ██╗╚██████╔╝██████╔╝██║  ██║██║  ██║${C_RESET}"
+    echo -e "  ${C_LOGO_5}╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝${C_RESET}"
+    echo ""
+    echo -e "  ${C_DIM}v${ver} • macOS Edition • by Code To Cloud${C_RESET}"
+    echo -e "  ${C_DIM}kodra.macos.codetocloud.io${C_RESET}"
+    echo ""
+    echo -e "  ${C_BOLD}System Health${C_RESET}"
+    echo -e "    ${C_CYAN}kodra doctor${C_RESET}        Check system health and tool status"
+    echo -e "    ${C_CYAN}kodra doctor --fix${C_RESET}  Auto-reinstall missing tools"
+    echo ""
+    echo -e "  ${C_BOLD}Maintenance${C_RESET}"
+    echo -e "    ${C_CYAN}kodra update${C_RESET}        Update all installed tools (brew upgrade)"
+    echo -e "    ${C_CYAN}kodra repair${C_RESET}        Interactive repair menu"
+    echo -e "    ${C_CYAN}kodra repair --all${C_RESET}  Repair everything automatically"
+    echo ""
+    echo -e "  ${C_BOLD}Configuration${C_RESET}"
+    echo -e "    ${C_CYAN}kodra setup${C_RESET}         Re-run first-time configuration"
+    echo -e "    ${C_CYAN}kodra cleanup${C_RESET}       Clean brew cache, Docker images, logs"
+    echo -e "    ${C_CYAN}kodra refresh${C_RESET}       Refresh shell configs"
+    echo -e "    ${C_CYAN}kodra defaults${C_RESET}      Re-apply macOS system defaults"
+    echo ""
+    echo -e "  ${C_BOLD}Development${C_RESET}"
+    echo -e "    ${C_CYAN}kodra dev${C_RESET}           Set up language runtimes (via mise)"
+    echo -e "    ${C_CYAN}kodra extensions${C_RESET}    Manage VS Code extensions"
+    echo -e "    ${C_CYAN}kodra shortcuts${C_RESET}     Show aliases and shortcuts"
+    echo ""
+    echo -e "  ${C_BOLD}Info${C_RESET}"
+    echo -e "    ${C_CYAN}kodra fetch${C_RESET}         Show system info (fastfetch)"
+    echo -e "    ${C_CYAN}kodra version${C_RESET}       Show version"
+    echo -e "    ${C_CYAN}kodra help${C_RESET}          Show this help"
+    echo ""
+}
+
+cmd_doctor() {
+    local fix_mode=false
+    [[ "$1" == "--fix" ]] && fix_mode=true
+
+    echo ""
+    echo -e "  ${C_PURPLE}Kodra macOS Doctor${C_RESET}"
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+
+    local failures=0
+    local total=0
+
+    check_tool() {
+        local name="$1"
+        local cmd="${2:-$1}"
+        total=$((total + 1))
+        if command -v "$cmd" &>/dev/null; then
+            local ver
+            ver=$("$cmd" --version 2>/dev/null | head -1 || echo "ok")
+            echo -e "  ${C_GREEN}✔${C_RESET} $name ${C_GRAY}($ver)${C_RESET}"
+        else
+            echo -e "  ${C_RED}✖${C_RESET} $name ${C_GRAY}— not found${C_RESET}"
+            failures=$((failures + 1))
+            if [[ "$fix_mode" == true ]]; then
+                echo -e "    ${C_CYAN}→ Attempting reinstall...${C_RESET}"
+                bash "$KODRA_DIR/install/cli-tools/${name}.sh" 2>/dev/null || \
+                bash "$KODRA_DIR/install/cloud/${name}.sh" 2>/dev/null || \
+                bash "$KODRA_DIR/install/containers/${name}.sh" 2>/dev/null || true
+            fi
+        fi
+    }
+
+    echo -e "  ${C_WHITE}CLI Tools:${C_RESET}"
+    check_tool "bat"
+    check_tool "btop"
+    check_tool "eza"
+    check_tool "fastfetch"
+    check_tool "fd"
+    check_tool "fzf"
+    check_tool "gh"
+    check_tool "lazygit"
+    check_tool "rg" "rg"
+    check_tool "yq"
+    check_tool "zoxide"
+
+    echo ""
+    echo -e "  ${C_WHITE}Cloud Tools:${C_RESET}"
+    check_tool "azure-cli" "az"
+    check_tool "azd" "azd"
+    check_tool "terraform" "terraform"
+    check_tool "tofu" "tofu"
+    check_tool "kubectl" "kubectl"
+    check_tool "helm" "helm"
+    check_tool "k9s" "k9s"
+    check_tool "powershell" "pwsh"
+
+    echo ""
+    echo -e "  ${C_WHITE}Containers:${C_RESET}"
+    check_tool "colima" "colima"
+    check_tool "docker" "docker"
+    check_tool "lazydocker" "lazydocker"
+
+    echo ""
+    echo -e "  ${C_WHITE}Terminal:${C_RESET}"
+    check_tool "starship" "starship"
+
+    echo ""
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    if [[ "$failures" -eq 0 ]]; then
+        echo -e "  ${C_GREEN}✔ All $total tools healthy${C_RESET}"
+    else
+        echo -e "  ${C_YELLOW}⚠ $failures/$total tools missing${C_RESET}"
+        if [[ "$fix_mode" != true ]]; then
+            echo -e "  ${C_GRAY}Run: kodra doctor --fix to auto-repair${C_RESET}"
+        fi
+    fi
+    echo ""
+
+    return $failures
+}
+
+cmd_update() {
+    echo -e "  ${C_CYAN}▶${C_RESET} Updating Homebrew..."
+    brew update --quiet
+
+    echo -e "  ${C_CYAN}▶${C_RESET} Upgrading all packages..."
+    brew upgrade --quiet
+
+    echo -e "  ${C_CYAN}▶${C_RESET} Updating Kodra..."
+    cd "$KODRA_DIR" && git pull --quiet origin main 2>/dev/null || true
+
+    echo -e "  ${C_GREEN}✔${C_RESET} Everything up to date"
+}
+
+cmd_cleanup() {
+    echo -e "  ${C_CYAN}▶${C_RESET} Cleaning Homebrew cache..."
+    brew cleanup --prune=7 -s 2>/dev/null
+
+    echo -e "  ${C_CYAN}▶${C_RESET} Removing old Docker images..."
+    docker image prune -f 2>/dev/null || true
+
+    echo -e "  ${C_GREEN}✔${C_RESET} Cleanup complete"
+}
+
+cmd_fetch() {
+    if command -v fastfetch &>/dev/null; then
+        fastfetch
+    else
+        echo "fastfetch not installed — run: kodra doctor --fix"
+    fi
+}
+
+cmd_defaults() {
+    echo -e "  ${C_CYAN}▶${C_RESET} Re-applying macOS defaults..."
+    bash "$KODRA_DIR/install/desktop/defaults.sh"
+    bash "$KODRA_DIR/install/desktop/dock.sh"
+    bash "$KODRA_DIR/install/desktop/finder.sh"
+    echo -e "  ${C_GREEN}✔${C_RESET} Defaults applied (some may need logout)"
+}
+
+cmd_refresh() {
+    echo -e "  ${C_CYAN}▶${C_RESET} Refreshing shell configuration..."
+    bash "$KODRA_DIR/install/terminal/shell-config.sh"
+    echo -e "  ${C_GREEN}✔${C_RESET} Shell config refreshed — restart terminal or: source ~/.zshrc"
+}
+
+cmd_shortcuts() {
+    echo ""
+    echo -e "  ${C_PURPLE}Kodra macOS Shortcuts${C_RESET}"
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+    echo -e "  ${C_WHITE}Git:${C_RESET}       g gs ga gc gp gl gd gb gco gcm"
+    echo -e "  ${C_WHITE}Docker:${C_RESET}    d dc dps dlogs"
+    echo -e "  ${C_WHITE}K8s:${C_RESET}       k kgp kgs kgd kns"
+    echo -e "  ${C_WHITE}Azure:${C_RESET}     azl azs azls"
+    echo -e "  ${C_WHITE}Terraform:${C_RESET} tf tfi tfp tfa"
+    echo -e "  ${C_WHITE}Files:${C_RESET}     ls→eza ll lt cat→bat grep→rg find→fd cd→z top→btop"
+    echo ""
+}
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Command router
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+case "${1:-help}" in
+    doctor)     cmd_doctor "$2" ;;
+    update)     cmd_update ;;
+    cleanup)    cmd_cleanup ;;
+    fetch)      cmd_fetch ;;
+    defaults)   cmd_defaults ;;
+    refresh)    cmd_refresh ;;
+    shortcuts)  cmd_shortcuts ;;
+    version)    show_version ;;
+    help|--help|-h) show_help ;;
+    *)
+        echo -e "  ${C_RED}Unknown command:${C_RESET} $1"
+        echo -e "  ${C_GRAY}Run: kodra help${C_RESET}"
+        exit 1
+        ;;
+esac
