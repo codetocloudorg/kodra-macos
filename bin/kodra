@@ -549,6 +549,199 @@ cmd_welcome() {
     fi
 }
 
+cmd_resume() {
+    source "$KODRA_DIR/lib/state.sh" 2>/dev/null || {
+        echo -e "  ${C_RED}✖${C_RESET} Failed to load state library"
+        exit 1
+    }
+    source "$KODRA_DIR/lib/utils.sh" 2>/dev/null || true
+
+    echo ""
+    echo -e "  ${C_PURPLE}Kodra macOS Resume${C_RESET}"
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+
+    if ! can_resume; then
+        echo -e "  ${C_GREEN}✔${C_RESET} Nothing to resume — no pending or failed steps"
+        return 0
+    fi
+
+    show_state_summary
+
+    local failed
+    failed="$(get_failed_steps)"
+    local pending
+    pending="$(get_pending_steps)"
+
+    if [[ -n "$failed" ]]; then
+        echo ""
+        echo -e "  ${C_RED}Failed steps:${C_RESET}"
+        while IFS='|' read -r step status; do
+            local msg="${status#failed:}"
+            echo -e "    ${C_RED}✖${C_RESET} ${step} — ${msg}"
+        done <<< "$failed"
+    fi
+
+    if [[ -n "$pending" ]]; then
+        echo ""
+        echo -e "  ${C_YELLOW}Pending steps:${C_RESET}"
+        while IFS= read -r step; do
+            echo -e "    ${C_YELLOW}○${C_RESET} ${step}"
+        done <<< "$pending"
+    fi
+
+    echo ""
+    echo -e "  ${C_CYAN}▶${C_RESET} Re-running failed and pending installers..."
+    echo ""
+
+    if [[ -n "$failed" ]]; then
+        while IFS='|' read -r step _status; do
+            local script="$KODRA_DIR/install/cli-tools/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/cloud/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/containers/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/terminal/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/dev-tools/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/desktop/${step}.sh"
+
+            if [[ -f "$script" ]]; then
+                echo -e "  ${C_CYAN}▶${C_RESET} Retrying: ${step}..."
+                if bash "$script" 2>&1; then
+                    mark_step_complete "$step"
+                    echo -e "  ${C_GREEN}✔${C_RESET} ${step} succeeded"
+                else
+                    echo -e "  ${C_RED}✖${C_RESET} ${step} failed again"
+                fi
+            else
+                echo -e "  ${C_YELLOW}⚠${C_RESET} No installer found for: ${step}"
+            fi
+        done <<< "$failed"
+    fi
+
+    if [[ -n "$pending" ]]; then
+        while IFS= read -r step; do
+            local script="$KODRA_DIR/install/cli-tools/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/cloud/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/containers/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/terminal/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/dev-tools/${step}.sh"
+            [[ -f "$script" ]] || script="$KODRA_DIR/install/desktop/${step}.sh"
+
+            if [[ -f "$script" ]]; then
+                echo -e "  ${C_CYAN}▶${C_RESET} Running: ${step}..."
+                if bash "$script" 2>&1; then
+                    mark_step_complete "$step"
+                    echo -e "  ${C_GREEN}✔${C_RESET} ${step} succeeded"
+                else
+                    mark_step_failed "$step" "install failed"
+                    echo -e "  ${C_RED}✖${C_RESET} ${step} failed"
+                fi
+            else
+                echo -e "  ${C_YELLOW}⚠${C_RESET} No installer found for: ${step}"
+            fi
+        done <<< "$pending"
+    fi
+
+    echo ""
+    echo -e "  ${C_GRAY}Progress: $(get_install_progress)% complete${C_RESET}"
+    echo ""
+}
+
+cmd_motd() {
+    local C_LOGO_1='\033[38;5;135m'
+    local C_LOGO_2='\033[38;5;141m'
+    local C_LOGO_3='\033[38;5;147m'
+    local C_LOGO_4='\033[38;5;117m'
+    local C_LOGO_5='\033[38;5;87m'
+    local C_DIM='\033[2m'
+    local C_BOLD='\033[1m'
+
+    local ver
+    ver="$(show_version)"
+
+    echo ""
+    echo -e "${C_DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo -e "${C_LOGO_1}  ██╗  ██╗ ██████╗ ██████╗ ██████╗  █████╗${C_RESET}"
+    echo -e "${C_LOGO_2}  ██║ ██╔╝██╔═══██╗██╔══██╗██╔══██╗██╔══██╗${C_RESET}"
+    echo -e "${C_LOGO_3}  █████╔╝ ██║   ██║██║  ██║██████╔╝███████║${C_RESET}"
+    echo -e "${C_LOGO_4}  ██╔═██╗ ██║   ██║██║  ██║██╔══██╗██╔══██║${C_RESET}"
+    echo -e "${C_LOGO_5}  ██║  ██╗╚██████╔╝██████╔╝██║  ██║██║  ██║${C_RESET}"
+    echo -e "${C_LOGO_5}  ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝${C_RESET}"
+    echo ""
+    echo -e "  ${C_BOLD}v${ver}${C_RESET} ${C_DIM}•${C_RESET} macOS Edition ${C_DIM}•${C_RESET} by Code To Cloud"
+    echo -e "${C_DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+
+    if command -v fastfetch &>/dev/null; then
+        fastfetch
+    else
+        echo -e "  ${C_GRAY}(install fastfetch for system info)${C_RESET}"
+        echo ""
+    fi
+}
+
+cmd_database() {
+    local state_file="${KODRA_STATE_DIR:-$HOME/.local/state/kodra}/state.json"
+
+    echo ""
+    echo -e "  ${C_PURPLE}Kodra State Database${C_RESET}"
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+
+    if [[ ! -f "$state_file" ]]; then
+        echo -e "  ${C_GRAY}No state file found at: ${state_file}${C_RESET}"
+        return 0
+    fi
+
+    echo -e "  ${C_GRAY}File: ${state_file}${C_RESET}"
+    echo ""
+
+    python3 -c "
+import json
+with open('${state_file}', 'r') as f:
+    data = json.load(f)
+print(json.dumps(data, indent=2, sort_keys=True))
+" 2>/dev/null | while IFS= read -r line; do
+        echo "  $line"
+    done
+
+    echo ""
+}
+
+cmd_ci_report() {
+    echo ""
+    echo -e "  ${C_PURPLE}Kodra CI Status${C_RESET}"
+    echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"
+    echo ""
+
+    if ! command -v gh &>/dev/null; then
+        echo -e "  ${C_RED}✖${C_RESET} GitHub CLI (gh) not installed"
+        echo -e "  ${C_GRAY}Run: kodra doctor --fix${C_RESET}"
+        return 1
+    fi
+
+    if ! gh auth status &>/dev/null 2>&1; then
+        echo -e "  ${C_YELLOW}⚠${C_RESET} Not authenticated — run: gh auth login"
+        return 1
+    fi
+
+    local repo
+    repo="$(cd "$KODRA_DIR" && git remote get-url origin 2>/dev/null | sed 's|.*github.com[:/]||;s|\.git$||')"
+
+    if [[ -z "$repo" ]]; then
+        echo -e "  ${C_YELLOW}⚠${C_RESET} Could not determine repository"
+        return 1
+    fi
+
+    echo -e "  ${C_GRAY}Repository: ${repo}${C_RESET}"
+    echo ""
+
+    gh run list --repo "$repo" --limit 10 2>/dev/null | while IFS= read -r line; do
+        echo "  $line"
+    done
+
+    echo ""
+}
+
 cmd_menu() {
     echo ""
     echo -e "  ${C_PURPLE}Kodra macOS Menu${C_RESET}"
@@ -595,16 +788,20 @@ case "${1:-help}" in
     repair|fix) cmd_repair "$2" ;;
     setup)      cmd_setup ;;
     install)    cmd_install ;;
-    uninstall)  cmd_uninstall "$2" ;;
+    uninstall|remove)  cmd_uninstall "$2" ;;
     dev)        cmd_dev ;;
     extensions) cmd_extensions ;;
     fetch)      cmd_fetch ;;
     defaults)   cmd_defaults ;;
     refresh)    cmd_refresh ;;
-    shortcuts)  cmd_shortcuts ;;
+    shortcuts|alias|aliases)  cmd_shortcuts ;;
     backup)     cmd_backup "$2" "$3" ;;
     restore)    cmd_restore "$2" ;;
     migrate)    cmd_migrate ;;
+    resume)     cmd_resume ;;
+    motd|banner) cmd_motd ;;
+    db|database) cmd_database ;;
+    ci-report|ci) cmd_ci_report ;;
     menu)       cmd_menu ;;
     welcome)    cmd_welcome ;;
     version)    show_version ;;

@@ -121,3 +121,78 @@ append_to_shell_config() {
         echo "$line" >> "$config"
     fi
 }
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Additional utility functions
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Simple internet connectivity check
+check_internet_connection() {
+    curl -s --connect-timeout 5 --max-time 10 --head https://github.com >/dev/null 2>&1
+}
+
+# Echo human-readable duration since START_TIME (epoch seconds)
+elapsed_time() {
+    local start_time="$1"
+    local now
+    now="$(date +%s)"
+    local elapsed=$(( now - start_time ))
+
+    if [[ "$elapsed" -lt 60 ]]; then
+        echo "${elapsed}s"
+    elif [[ "$elapsed" -lt 3600 ]]; then
+        local mins=$(( elapsed / 60 ))
+        local secs=$(( elapsed % 60 ))
+        echo "${mins}m ${secs}s"
+    else
+        local hours=$(( elapsed / 3600 ))
+        local mins=$(( (elapsed % 3600) / 60 ))
+        echo "${hours}h ${mins}m"
+    fi
+}
+
+# Trap handler to clean temp files
+cleanup_on_exit() {
+    local exit_code=$?
+    if [[ -n "${KODRA_CLEANUP_FILES:-}" ]]; then
+        for f in ${KODRA_CLEANUP_FILES}; do
+            rm -rf "$f" 2>/dev/null || true
+        done
+    fi
+    return "$exit_code"
+}
+
+# mkdir -p with error handling
+ensure_dir() {
+    local dir="$1"
+    if [[ -z "$dir" ]]; then
+        echo "ensure_dir: directory path required" >&2
+        return 1
+    fi
+    if ! mkdir -p "$dir" 2>/dev/null; then
+        echo "ensure_dir: failed to create directory: $dir" >&2
+        return 1
+    fi
+}
+
+# Append to log file (delegates to _write_log if available)
+log_to_file() {
+    local msg="$1"
+    if command -v _write_log &>/dev/null; then
+        _write_log "INFO" "$msg"
+    else
+        local log_dir="${HOME}/.local/state/kodra/logs"
+        mkdir -p "$log_dir"
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] ${msg}" >> "${log_dir}/kodra-$(date +%Y-%m-%d).log"
+    fi
+}
+
+# Get Kodra version from VERSION file
+get_kodra_version() {
+    local kodra_root="${KODRA_DIR:-$HOME/.kodra}"
+    if [[ -f "$kodra_root/VERSION" ]]; then
+        cat "$kodra_root/VERSION"
+    else
+        echo "unknown"
+    fi
+}

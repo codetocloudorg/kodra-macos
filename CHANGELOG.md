@@ -5,6 +5,28 @@ All notable changes to Kodra macOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-05-06
+
+### Added
+- `resume` CLI command — resume interrupted installations from where they left off
+- `motd|banner` CLI command — display ASCII logo and system info
+- `db|database` CLI command — inspect Kodra state database
+- `ci-report|ci` CLI command — show CI pipeline status via GitHub CLI
+- `lib/state.sh` resume infrastructure — 10 functions: `mark_step_complete`, `is_step_complete`, `mark_step_failed`, `get_failed_steps`, `get_pending_steps`, `get_resume_point`, `clear_state`, `show_state_summary`, `get_install_progress`, `can_resume`
+- `lib/checks.sh` enhanced pre-flight — `check_internet`, `check_memory`, `check_shell`, `check_dns`, `run_all_checks`, `show_checks_summary`
+- `lib/logging.sh` file logging — `init_log`, `_rotate_logs`, `_write_log` with automatic log rotation (5 files)
+- `lib/backup.sh` granular backup/restore — per-category functions for dotfiles, shell config, and tool configs
+- `lib/utils.sh` extended utilities — `check_internet_connection`, `elapsed_time`, `cleanup_on_exit`, `ensure_dir`, `log_to_file`, `get_kodra_version`
+- Command aliases: `uninstall|remove`, `shortcuts|alias|aliases`
+- `.github/dependabot.yml` — automated GitHub Actions dependency updates
+- Version consistency tests — VERSION semver validation, cross-file version checks, CLI version output verification
+- 200+ unit tests (up from 168)
+
+### Changed
+- Bumped version to 0.2.0
+- Full feature parity with kodra and kodra-wsl (no critical or moderate gaps)
+- All lib files now have WSL-equivalent function coverage
+
 ## [0.1.0] - 2026-05-05
 
 ### Added
@@ -31,4 +53,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E workflow mimicking real user install on Apple Silicon runner
 - Clean uninstaller (`uninstall.sh`)
 
+[0.2.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.2.0
 [0.1.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.1.0

@@ -18,7 +18,7 @@
 [![macOS Install (Apple Silicon E2E)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon-black?logo=apple)](https://github.com/codetocloudorg/kodra-macos)
-[![Version](https://img.shields.io/badge/version-0.1.0-purple)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.2.0-purple)](CHANGELOG.md)
 
 </div>
 

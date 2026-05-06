@@ -81,6 +81,59 @@ for f in "${REQUIRED_FILES[@]}"; do
 done
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Version Consistency${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# VERSION file must exist and contain a valid semver
+if [[ -f "$ROOT_DIR/VERSION" ]]; then
+    VERSION_VALUE="$(cat "$ROOT_DIR/VERSION" | tr -d '[:space:]')"
+    if [[ "$VERSION_VALUE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        assert_pass "version: VERSION file is valid semver ($VERSION_VALUE)"
+    else
+        assert_fail "version: VERSION file is not valid semver" "$VERSION_VALUE"
+    fi
+else
+    assert_fail "version: VERSION file missing"
+fi
+
+# README badge must reference current version
+if [[ -f "$ROOT_DIR/README.md" ]] && [[ -n "${VERSION_VALUE:-}" ]]; then
+    if grep -q "$VERSION_VALUE" "$ROOT_DIR/README.md" 2>/dev/null; then
+        assert_pass "version: README.md references $VERSION_VALUE"
+    else
+        assert_fail "version: README.md does not reference $VERSION_VALUE"
+    fi
+fi
+
+# CHANGELOG must reference current version
+if [[ -f "$ROOT_DIR/CHANGELOG.md" ]] && [[ -n "${VERSION_VALUE:-}" ]]; then
+    if grep -q "$VERSION_VALUE" "$ROOT_DIR/CHANGELOG.md" 2>/dev/null; then
+        assert_pass "version: CHANGELOG.md references $VERSION_VALUE"
+    else
+        assert_fail "version: CHANGELOG.md does not reference $VERSION_VALUE"
+    fi
+fi
+
+# llms.txt must reference current version
+if [[ -f "$ROOT_DIR/llms-full.txt" ]] && [[ -n "${VERSION_VALUE:-}" ]]; then
+    if grep -q "$VERSION_VALUE" "$ROOT_DIR/llms-full.txt" 2>/dev/null; then
+        assert_pass "version: llms-full.txt references $VERSION_VALUE"
+    else
+        assert_fail "version: llms-full.txt does not reference $VERSION_VALUE"
+    fi
+fi
+
+# bin/kodra must be able to show version
+if [[ -x "$ROOT_DIR/bin/kodra" ]]; then
+    CLI_VER="$(KODRA_DIR="$ROOT_DIR" bash "$ROOT_DIR/bin/kodra" version 2>/dev/null | tr -d '[:space:]')"
+    if [[ "$CLI_VER" == "${VERSION_VALUE:-}" ]]; then
+        assert_pass "version: kodra CLI reports $CLI_VER"
+    else
+        assert_fail "version: kodra CLI reports '$CLI_VER' but VERSION file says '${VERSION_VALUE:-}'"
+    fi
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo -e "\n${C_CYAN}▶ Test Suite: Installer Structure${C_RESET}\n"
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -277,13 +330,106 @@ echo -e "\n${C_CYAN}▶ Test Suite: CLI Command Parity${C_RESET}\n"
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 cli_file="$ROOT_DIR/bin/kodra"
-for cmd in doctor update cleanup repair setup install uninstall dev extensions fetch defaults refresh shortcuts backup restore migrate menu welcome version help; do
-    if grep -q "${cmd}" "$cli_file" 2>/dev/null && grep -qE "cmd_${cmd}|show_${cmd}|show_help|show_version" "$cli_file" 2>/dev/null; then
+for cmd in doctor update cleanup repair setup install uninstall dev extensions fetch defaults refresh shortcuts backup restore migrate menu welcome version help resume motd banner db database ci; do
+    if grep -q "${cmd}" "$cli_file" 2>/dev/null; then
         assert_pass "cli-cmd: $cmd"
     else
         assert_fail "cli-cmd: $cmd not in CLI"
     fi
 done
+
+# Command aliases
+if grep -qE "remove\)" "$cli_file" 2>/dev/null; then
+    assert_pass "cli-alias: uninstall|remove"
+else
+    assert_fail "cli-alias: uninstall|remove not in CLI"
+fi
+
+if grep -qE "alias|aliases" "$cli_file" 2>/dev/null; then
+    assert_pass "cli-alias: shortcuts|aliases"
+else
+    assert_fail "cli-alias: shortcuts|aliases not in CLI"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: State Resume Infrastructure${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STATE_FUNCS=("mark_step_complete" "is_step_complete" "mark_step_failed" "get_failed_steps" "get_pending_steps" "get_resume_point" "clear_state" "show_state_summary" "get_install_progress" "can_resume")
+for fn in "${STATE_FUNCS[@]}"; do
+    if grep -q "$fn" "$ROOT_DIR/lib/state.sh" 2>/dev/null; then
+        assert_pass "state-fn: $fn"
+    else
+        assert_fail "state-fn: $fn missing from lib/state.sh"
+    fi
+done
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Enhanced Checks${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CHECK_FUNCS=("check_internet" "check_memory" "check_shell" "check_dns" "run_all_checks" "show_checks_summary")
+for fn in "${CHECK_FUNCS[@]}"; do
+    if grep -q "$fn" "$ROOT_DIR/lib/checks.sh" 2>/dev/null; then
+        assert_pass "checks-fn: $fn"
+    else
+        assert_fail "checks-fn: $fn missing from lib/checks.sh"
+    fi
+done
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: File Logging${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+LOG_FUNCS=("init_log" "_rotate_logs" "_write_log")
+for fn in "${LOG_FUNCS[@]}"; do
+    if grep -q "$fn" "$ROOT_DIR/lib/logging.sh" 2>/dev/null; then
+        assert_pass "logging-fn: $fn"
+    else
+        assert_fail "logging-fn: $fn missing from lib/logging.sh"
+    fi
+done
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Granular Backup/Restore${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BACKUP_FUNCS=("backup_dotfiles" "backup_shell_config" "backup_tool_configs" "restore_dotfiles" "restore_shell_config" "restore_tool_configs")
+for fn in "${BACKUP_FUNCS[@]}"; do
+    if grep -q "$fn" "$ROOT_DIR/lib/backup.sh" 2>/dev/null; then
+        assert_pass "backup-fn: $fn"
+    else
+        assert_fail "backup-fn: $fn missing from lib/backup.sh"
+    fi
+done
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Extended Utilities${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+UTIL_FUNCS=("check_internet_connection" "elapsed_time" "cleanup_on_exit" "ensure_dir" "log_to_file" "get_kodra_version")
+for fn in "${UTIL_FUNCS[@]}"; do
+    if grep -q "$fn" "$ROOT_DIR/lib/utils.sh" 2>/dev/null; then
+        assert_pass "utils-fn: $fn"
+    else
+        assert_fail "utils-fn: $fn missing from lib/utils.sh"
+    fi
+done
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Dependabot${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+if [[ -f "$ROOT_DIR/.github/dependabot.yml" ]]; then
+    assert_pass "dependabot: .github/dependabot.yml exists"
+    if grep -q "github-actions" "$ROOT_DIR/.github/dependabot.yml" 2>/dev/null; then
+        assert_pass "dependabot: github-actions ecosystem configured"
+    else
+        assert_fail "dependabot: github-actions ecosystem missing"
+    fi
+else
+    assert_fail "dependabot: .github/dependabot.yml missing"
+fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Summary

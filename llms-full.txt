@@ -6,7 +6,7 @@
 
 Kodra macOS is a one-command Azure developer environment for macOS on Apple Silicon. It installs and configures 30+ cloud-native development tools with zero manual configuration. Built by [Code To Cloud Inc.](https://www.codetocloud.io) in Calgary, Alberta, Canada.
 
-- **Version**: 0.1.0
+- **Version**: 0.2.0
 - **Platform**: macOS 14 (Sonoma) or later, Apple Silicon (M1/M2/M3/M4)
 - **License**: MIT
 - **Website**: https://kodra.macos.codetocloud.io

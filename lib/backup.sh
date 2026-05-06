@@ -244,6 +244,233 @@ verify_backup() {
     fi
 }
 
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Granular backup/restore functions
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Backup only dotfiles
+backup_dotfiles() {
+    local label="${1:-dotfiles}"
+    local timestamp
+    timestamp="$(date +%Y%m%d-%H%M%S)"
+    local backup_path="${KODRA_BACKUP_DIR}/${timestamp}-${label}"
+
+    mkdir -p "$backup_path"
+    log_info "Backing up dotfiles..."
+
+    local count=0
+    for file in "${BACKUP_DOTFILES[@]}"; do
+        if [[ -f "$file" ]]; then
+            cp "$file" "$backup_path/$(basename "$file")"
+            count=$((count + 1))
+        fi
+    done
+
+    cat > "$backup_path/metadata.json" << EOF
+{
+  "label": "${label}",
+  "timestamp": "${timestamp}",
+  "type": "dotfiles",
+  "file_count": ${count}
+}
+EOF
+
+    log_success "Dotfiles backup created (${count} items)"
+}
+
+# Backup only shell configs
+backup_shell_config() {
+    local label="${1:-shell-config}"
+    local timestamp
+    timestamp="$(date +%Y%m%d-%H%M%S)"
+    local backup_path="${KODRA_BACKUP_DIR}/${timestamp}-${label}"
+
+    mkdir -p "$backup_path"
+    log_info "Backing up shell configuration..."
+
+    local count=0
+    local shell_files=(
+        "${XDG_CONFIG_HOME:-$HOME/.config}/kodra/shell.zsh"
+        "$HOME/.config/starship.toml"
+        "$HOME/.zshrc"
+        "$HOME/.zprofile"
+        "$HOME/.zshenv"
+    )
+
+    for file in "${shell_files[@]}"; do
+        if [[ -f "$file" ]]; then
+            cp "$file" "$backup_path/$(basename "$file")"
+            count=$((count + 1))
+        fi
+    done
+
+    cat > "$backup_path/metadata.json" << EOF
+{
+  "label": "${label}",
+  "timestamp": "${timestamp}",
+  "type": "shell-config",
+  "file_count": ${count}
+}
+EOF
+
+    log_success "Shell config backup created (${count} items)"
+}
+
+# Backup only tool configs (ghostty, btop, fastfetch)
+backup_tool_configs() {
+    local label="${1:-tool-configs}"
+    local timestamp
+    timestamp="$(date +%Y%m%d-%H%M%S)"
+    local backup_path="${KODRA_BACKUP_DIR}/${timestamp}-${label}"
+
+    mkdir -p "$backup_path"
+    log_info "Backing up tool configurations..."
+
+    local count=0
+    local tool_dirs=(
+        "$HOME/.config/ghostty"
+        "$HOME/.config/btop"
+        "$HOME/.config/fastfetch"
+    )
+
+    for item in "${tool_dirs[@]}"; do
+        if [[ -e "$item" ]]; then
+            local dest_name
+            dest_name="config-$(basename "$item")"
+            if [[ -d "$item" ]]; then
+                cp -R "$item" "$backup_path/$dest_name"
+            else
+                cp "$item" "$backup_path/$dest_name"
+            fi
+            count=$((count + 1))
+        fi
+    done
+
+    cat > "$backup_path/metadata.json" << EOF
+{
+  "label": "${label}",
+  "timestamp": "${timestamp}",
+  "type": "tool-configs",
+  "file_count": ${count}
+}
+EOF
+
+    log_success "Tool config backup created (${count} items)"
+}
+
+# Restore only dotfiles from latest backup
+restore_dotfiles() {
+    local backup_path="${1:-}"
+
+    if [[ -z "$backup_path" ]]; then
+        backup_path="$(find "${KODRA_BACKUP_DIR}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)"
+    elif [[ ! -d "$backup_path" ]]; then
+        backup_path="${KODRA_BACKUP_DIR}/${backup_path}"
+    fi
+
+    if [[ -z "$backup_path" || ! -d "$backup_path" ]]; then
+        log_error "No backup found to restore dotfiles from"
+        return 1
+    fi
+
+    log_info "Restoring dotfiles from: $(basename "$backup_path")"
+
+    local count=0
+    for file in "${BACKUP_DOTFILES[@]}"; do
+        local basename_file
+        basename_file="$(basename "$file")"
+        if [[ -f "$backup_path/$basename_file" ]]; then
+            cp "$backup_path/$basename_file" "$file"
+            count=$((count + 1))
+        fi
+    done
+
+    log_success "Restored ${count} dotfiles"
+}
+
+# Restore only shell configs
+restore_shell_config() {
+    local backup_path="${1:-}"
+
+    if [[ -z "$backup_path" ]]; then
+        backup_path="$(find "${KODRA_BACKUP_DIR}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)"
+    elif [[ ! -d "$backup_path" ]]; then
+        backup_path="${KODRA_BACKUP_DIR}/${backup_path}"
+    fi
+
+    if [[ -z "$backup_path" || ! -d "$backup_path" ]]; then
+        log_error "No backup found to restore shell config from"
+        return 1
+    fi
+
+    log_info "Restoring shell config from: $(basename "$backup_path")"
+
+    local count=0
+    local shell_targets=(
+        "${XDG_CONFIG_HOME:-$HOME/.config}/kodra/shell.zsh"
+        "$HOME/.config/starship.toml"
+        "$HOME/.zshrc"
+        "$HOME/.zprofile"
+        "$HOME/.zshenv"
+    )
+
+    for file in "${shell_targets[@]}"; do
+        local basename_file
+        basename_file="$(basename "$file")"
+        if [[ -f "$backup_path/$basename_file" ]]; then
+            mkdir -p "$(dirname "$file")"
+            cp "$backup_path/$basename_file" "$file"
+            count=$((count + 1))
+        fi
+    done
+
+    log_success "Restored ${count} shell config files"
+}
+
+# Restore only tool configs
+restore_tool_configs() {
+    local backup_path="${1:-}"
+
+    if [[ -z "$backup_path" ]]; then
+        backup_path="$(find "${KODRA_BACKUP_DIR}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)"
+    elif [[ ! -d "$backup_path" ]]; then
+        backup_path="${KODRA_BACKUP_DIR}/${backup_path}"
+    fi
+
+    if [[ -z "$backup_path" || ! -d "$backup_path" ]]; then
+        log_error "No backup found to restore tool configs from"
+        return 1
+    fi
+
+    log_info "Restoring tool configs from: $(basename "$backup_path")"
+
+    local count=0
+    local tool_targets=(
+        "$HOME/.config/ghostty"
+        "$HOME/.config/btop"
+        "$HOME/.config/fastfetch"
+    )
+
+    for item in "${tool_targets[@]}"; do
+        local dest_name
+        dest_name="config-$(basename "$item")"
+        if [[ -e "$backup_path/$dest_name" ]]; then
+            local parent_dir
+            parent_dir="$(dirname "$item")"
+            mkdir -p "$parent_dir"
+            if [[ -d "$backup_path/$dest_name" ]]; then
+                rm -rf "$item"
+                cp -R "$backup_path/$dest_name" "$item"
+            else
+                cp "$backup_path/$dest_name" "$item"
+            fi
+            count=$((count + 1))
+        fi
+    done
+
+    log_success "Restored ${count} tool configs"
+}
+
 # Get backup size
 get_backup_size() {
     local backup_path="$1"
