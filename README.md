@@ -14,9 +14,11 @@
 **One-command Azure developer environment for macOS.**<br>
 30+ cloud-native tools, Homebrew + native `.pkg` installs, zero config.
 
-[![CI](https://github.com/codetocloudorg/kodra-macos/actions/workflows/ci.yml/badge.svg)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/ci.yml)
-[![E2E](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml/badge.svg)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml)
+[![CI](https://github.com/codetocloudorg/kodra-macos/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/ci.yml)
+[![E2E](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon-black?logo=apple)](https://github.com/codetocloudorg/kodra-macos)
+[![Version](https://img.shields.io/badge/version-0.1.0-purple)](CHANGELOG.md)
 
 </div>
 
