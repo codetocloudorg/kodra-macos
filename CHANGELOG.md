@@ -5,6 +5,19 @@ All notable changes to Kodra macOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-05-06
+
+### Added
+- 12 missing uninstallers: opentofu, bicep, copilot-cli, azd, bat, btop, eza, fd, fzf, ripgrep, yq, zoxide
+- Every installer now has a matching uninstaller (complete parity)
+
+### Changed
+- CLI help: per-letter gradient ASCII art matching kodra and kodra-wsl
+- CLI help: categorized sections (System, Configuration, Data, Development, Info)
+- CLI help: all new commands (resume, banner, db, ci) now visible in help text
+- Wider separator lines matching kodra upstream style
+- Removed azure-storage-explorer (not applicable)
+
 ## [0.2.0] - 2026-05-06
 
 ### Added
@@ -53,5 +66,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E workflow mimicking real user install on Apple Silicon runner
 - Clean uninstaller (`uninstall.sh`)
 
+[0.3.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.3.0
 [0.2.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.2.0
 [0.1.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.1.0

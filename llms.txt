@@ -49,5 +49,5 @@ curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 
 - License: MIT
 - Platforms: macOS 14+ (Sonoma or later), Apple Silicon (M1/M2/M3/M4)
-- Version: 0.2.0
+- Version: 0.3.0
 - Developed by: Code To Cloud Inc. (Calgary, Alberta, Canada)

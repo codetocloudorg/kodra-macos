@@ -1,6 +1,14 @@
 # Kodra macOS — Roadmap
 
-## Current: v0.2.0 (Feature Parity)
+## Current: v0.3.0 (CLI Parity & Uninstallers)
+
+✅ Everything from v0.2.0 plus:
+✅ 12 missing uninstallers — every installer now has a matching uninstaller
+✅ Per-letter gradient ASCII art matching kodra and kodra-wsl
+✅ Categorized CLI help sections (System, Configuration, Data, Development, Info)
+✅ All commands visible in help text (resume, banner, db, ci)
+
+## v0.2.0 (Feature Parity)
 
 ✅ Everything from v0.1.0 plus:
 ✅ Resume interrupted installations (`kodra resume`)
