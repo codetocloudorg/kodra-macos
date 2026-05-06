@@ -2,4 +2,8 @@
 # Kodra macOS — Install GitHub CLI
 source "$(dirname "${BASH_SOURCE[0]}")/../../lib/utils.sh"
 
-brew_install gh
+if has_command gh; then
+    log_debug "GitHub CLI already available"
+else
+    brew_install gh
+fi

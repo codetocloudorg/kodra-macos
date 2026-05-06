@@ -34,8 +34,13 @@ export KODRA_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/kodra"
 export KODRA_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/kodra"
 export KODRA_LOG_FILE="/tmp/kodra-macos-install-$(date +%Y%m%d-%H%M%S).log"
 
-# Start logging everything to file
-exec > >(tee -a "$KODRA_LOG_FILE") 2>&1
+# Start logging everything to file (skip process substitution in CI to avoid exit issues)
+if [ -n "${CI:-}" ]; then
+    # In CI, the workflow handles tee externally
+    true
+else
+    exec > >(tee -a "$KODRA_LOG_FILE") 2>&1
+fi
 
 echo "═══════════════════════════════════════════════════════════════════════════"
 echo "Kodra macOS Installation Log"

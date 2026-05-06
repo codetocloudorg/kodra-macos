@@ -4,7 +4,11 @@
 # No Docker Desktop license required
 source "$(dirname "${BASH_SOURCE[0]}")/../../lib/utils.sh"
 
-brew_install colima
+if has_command colima; then
+    log_debug "Colima already available"
+else
+    brew_install colima
+fi
 
 # Start Colima with sensible defaults for Apple Silicon
 if ! colima status &>/dev/null; then

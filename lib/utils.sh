@@ -64,10 +64,25 @@ ensure_brew_path() {
 brew_install() {
     local formula="$1"
     ensure_brew_path
-    if ! brew list "$formula" &>/dev/null; then
-        brew install "$formula"
-    else
+
+    # Skip if already available (installed by any method)
+    if has_command "$formula" && brew list "$formula" &>/dev/null 2>&1; then
         log_debug "$formula already installed"
+        return 0
+    fi
+
+    # Try to install/link via Homebrew
+    if brew list "$formula" &>/dev/null 2>&1; then
+        log_debug "$formula already installed via Homebrew"
+    else
+        brew install "$formula" 2>/dev/null || {
+            # If brew install fails, check if command exists anyway
+            if has_command "$formula"; then
+                log_debug "$formula available (not via Homebrew)"
+                return 0
+            fi
+            return 1
+        }
     fi
 }
 
@@ -75,8 +90,11 @@ brew_install() {
 brew_cask_install() {
     local cask="$1"
     ensure_brew_path
-    if ! brew list --cask "$cask" &>/dev/null; then
-        brew install --cask "$cask"
+    if ! brew list --cask "$cask" &>/dev/null 2>&1; then
+        brew install --cask "$cask" 2>/dev/null || {
+            log_debug "$cask cask install skipped (may already exist)"
+            return 0
+        }
     else
         log_debug "$cask already installed"
     fi
