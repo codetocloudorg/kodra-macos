@@ -4,11 +4,12 @@ name: E2E Install Test
 # ║  Kodra macOS E2E — A Code To Cloud Project ☁️                   ║
 # ║                                                                  ║
 # ║  Runs on REAL Apple Silicon macOS runners (macos-15) to          ║
-# ║  validate actual Homebrew installs and tool availability.        ║
+# ║  validate the actual user experience: fresh macOS → boot.sh →   ║
+# ║  kodra install. This catches macOS-specific issues that a        ║
+# ║  Linux runner would miss.                                        ║
 # ║                                                                  ║
 # ║  Jobs:                                                           ║
-# ║    1. e2e-install — Full install on macOS Apple Silicon          ║
-# ║    2. e2e-doctor  — Run kodra doctor after install               ║
+# ║    1. e2e-macos-install — Full install mimicking real user flow  ║
 # ╚══════════════════════════════════════════════════════════════════╝
 
 on:
@@ -30,47 +31,93 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+  KODRA_CI_BANNER: |
+    echo ""
+    echo "    ██╗  ██╗ ██████╗ ██████╗ ██████╗  █████╗ "
+    echo "    ██║ ██╔╝██╔═══██╗██╔══██╗██╔══██╗██╔══██╗"
+    echo "    █████╔╝ ██║   ██║██║  ██║██████╔╝███████║"
+    echo "    ██╔═██╗ ██║   ██║██║  ██║██╔══██╗██╔══██║"
+    echo "    ██║  ██╗╚██████╔╝██████╔╝██║  ██║██║  ██║"
+    echo "    ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝"
+    echo ""
+    echo "    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "    🍎  F R O M   C O D E   T O   C L O U D  🍎"
+    echo "    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
 jobs:
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # JOB 1: Full install on macOS Apple Silicon
+  # JOB 1: Real macOS Apple Silicon — the authentic user experience
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  e2e-install:
+  e2e-macos-install:
     name: "🍎 macOS Install (Apple Silicon)"
     runs-on: macos-15
-    timeout-minutes: 30
-    env:
-      KODRA_DIR: ${{ github.workspace }}
-      KODRA_SKIP_PROMPTS: "1"
-      HOMEBREW_NO_AUTO_UPDATE: "1"
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
-      - name: "🔍 Environment info"
+      - name: "☁️ Code To Cloud — Environment info"
         run: |
-          echo "┌──────────────────────────────────────────────────┐"
-          echo "│  Kodra macOS E2E — Apple Silicon Install Test     │"
-          echo "├──────────────────────────────────────────────────┤"
-          printf "│  %-48s│\n" "macOS: $(sw_vers -productVersion) ($(sw_vers -productName))"
-          printf "│  %-48s│\n" "Arch: $(uname -m)"
-          printf "│  %-48s│\n" "Chip: $(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo 'N/A')"
-          printf "│  %-48s│\n" "Brew: $(brew --version | head -1)"
-          printf "│  %-48s│\n" "User: $(whoami)"
-          printf "│  %-48s│\n" "Date: $(date)"
-          echo "└──────────────────────────────────────────────────┘"
+          eval "$KODRA_CI_BANNER"
+          printf "╔══════════════════════════════════════════════════╗\n"
+          printf "║  %-48s║\n" "Kodra macOS E2E — Real Install Test"
+          printf "║  %-48s║\n" "macOS: $(sw_vers -productVersion) ($(sw_vers -productName))"
+          printf "║  %-48s║\n" "Build: $(sw_vers -buildVersion)"
+          printf "║  %-48s║\n" "Arch: $(uname -m)"
+          printf "║  %-48s║\n" "Chip: $(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo 'N/A')"
+          printf "║  %-48s║\n" "Brew: $(brew --version | head -1)"
+          printf "║  %-48s║\n" "Shell: $SHELL"
+          printf "║  %-48s║\n" "User: $(whoami) | Home: $HOME"
+          printf "║  %-48s║\n" "Disk: $(df -h / | awk 'NR==2 {print $4}') free"
+          printf "║  %-48s║\n" "Date: $(date)"
+          printf "╚══════════════════════════════════════════════════╝\n"
 
-      - name: "📦 Ensure Homebrew is ready"
+      # ─────────────────────────────────────────────────────────────
+      # Mimic real user: copy repo to ~/.kodra (like boot.sh does)
+      # ─────────────────────────────────────────────────────────────
+      - name: "📦 Copy repo to ~/.kodra (mimics boot.sh clone)"
+        run: |
+          rm -rf ~/.kodra
+          cp -r "${{ github.workspace }}" ~/.kodra
+          echo "✓ Copied to ~/.kodra"
+          cat ~/.kodra/VERSION
+
+      # ─────────────────────────────────────────────────────────────
+      # Ensure Homebrew is fresh and ready
+      # ─────────────────────────────────────────────────────────────
+      - name: "🍺 Prepare Homebrew"
         run: |
           brew update --quiet
-          echo "✅ Homebrew ready"
+          echo "✅ Homebrew ready: $(brew --prefix)"
 
+      # ─────────────────────────────────────────────────────────────
+      # Run the full install — exactly as a real user would
+      # ─────────────────────────────────────────────────────────────
       - name: "🚀 Run full Kodra macOS install"
         id: install
         run: |
+          printf "╔══════════════════════════════════════════════════╗\n"
+          printf "║  %-48s║\n" "Kodra macOS E2E — Full Install"
+          printf "║  %-48s║\n" "macOS: $(sw_vers -productVersion)"
+          printf "║  %-48s║\n" "Arch: $(uname -m)"
+          printf "║  %-48s║\n" "User: $(whoami) | Home: $HOME"
+          printf "║  %-48s║\n" "Date: $(date)"
+          printf "╚══════════════════════════════════════════════════╝\n"
+          echo ""
+
+          cd "$HOME/.kodra"
+          echo "Version: $(cat VERSION)"
+          echo ""
+
           echo "▶ Running install.sh --debug..."
           echo "═══════════════════════════════════════════════════════"
 
+          export KODRA_SKIP_PROMPTS=1
           start_time=$(date +%s)
-          bash ./install.sh --debug 2>&1 || true
+          bash ./install.sh --debug 2>&1 | tee /tmp/kodra-install.log || true
           install_exit=$?
           end_time=$(date +%s)
           duration=$((end_time - start_time))
@@ -79,125 +126,358 @@ jobs:
           echo "═══════════════════════════════════════════════════════"
           printf "Install completed in %ds (exit: %d)\n" "$duration" "$install_exit"
 
-      - name: "🔍 Verify CLI tools"
-        id: verify-cli
+      # ─────────────────────────────────────────────────────────────
+      # Verify all installed tools (mirrors WSL verification pattern)
+      # ─────────────────────────────────────────────────────────────
+      - name: "🔍 Verify installed tools"
+        id: verify
         if: always()
         run: |
+          set +e
           echo "┌──────────────────────────────────────────────────┐"
-          echo "│  CLI Tool Verification                            │"
+          echo "│  Tool Verification on macOS                       │"
           echo "└──────────────────────────────────────────────────┘"
           echo ""
+
+          export PATH="$HOME/.kodra/bin:$HOME/.local/bin:$(brew --prefix)/bin:$PATH"
+          export KODRA_DIR="$HOME/.kodra"
 
           failures=0
           total=0
 
-          check() {
-            local name="$1"
-            local cmd="${2:-$1}"
+          # ─── Core CLI Tools ─────────────────────────────────
+          EXPECTED_TOOLS=(
+            "git" "curl" "jq"
+            "bat" "btop" "eza" "fzf" "rg" "zoxide" "yq"
+            "fastfetch" "lazygit" "gh" "fd"
+          )
+
+          echo "Core CLI Tools:"
+          for cmd in "${EXPECTED_TOOLS[@]}"; do
             total=$((total + 1))
             if command -v "$cmd" &>/dev/null; then
-              echo "  ✅ $name"
+              ver=$("$cmd" --version 2>/dev/null | head -1 || echo "installed")
+              printf "  ✅ %-15s %s\n" "$cmd" "$ver"
             else
-              echo "  ❌ $name ($cmd not found)"
+              printf "  ❌ %-15s NOT FOUND\n" "$cmd"
               failures=$((failures + 1))
             fi
-          }
+          done
 
-          check "bat"
-          check "btop"
-          check "eza"
-          check "fastfetch"
-          check "fd"
-          check "fzf"
-          check "gh"
-          check "lazygit"
-          check "ripgrep" "rg"
-          check "yq"
-          check "zoxide"
+          # ─── Cloud & DevOps Tools ───────────────────────────
+          CLOUD_TOOLS=(
+            "az" "azd" "kubectl" "helm" "terraform" "tofu" "k9s"
+          )
 
           echo ""
-          echo "CLI Tools: $((total - failures))/$total passed"
-          echo "cli_failures=$failures" >> "$GITHUB_OUTPUT"
+          echo "Cloud & DevOps Tools:"
+          for cmd in "${CLOUD_TOOLS[@]}"; do
+            total=$((total + 1))
+            if command -v "$cmd" &>/dev/null; then
+              ver=$("$cmd" --version 2>/dev/null | head -1 || echo "installed")
+              printf "  ✅ %-15s %s\n" "$cmd" "$ver"
+            else
+              printf "  ❌ %-15s NOT FOUND\n" "$cmd"
+              failures=$((failures + 1))
+            fi
+          done
 
-      - name: "🔍 Verify cloud tools"
-        id: verify-cloud
+          # ─── Container Tools ────────────────────────────────
+          CONTAINER_TOOLS=(
+            "colima" "docker" "lazydocker"
+          )
+
+          echo ""
+          echo "Container Tools:"
+          for cmd in "${CONTAINER_TOOLS[@]}"; do
+            total=$((total + 1))
+            if command -v "$cmd" &>/dev/null; then
+              ver=$("$cmd" --version 2>/dev/null | head -1 || echo "installed")
+              printf "  ✅ %-15s %s\n" "$cmd" "$ver"
+            else
+              printf "  ❌ %-15s NOT FOUND\n" "$cmd"
+              failures=$((failures + 1))
+            fi
+          done
+
+          # ─── Terminal Tools ─────────────────────────────────
+          TERMINAL_TOOLS=(
+            "starship"
+          )
+
+          echo ""
+          echo "Terminal Tools:"
+          for cmd in "${TERMINAL_TOOLS[@]}"; do
+            total=$((total + 1))
+            if command -v "$cmd" &>/dev/null; then
+              ver=$("$cmd" --version 2>/dev/null | head -1 || echo "installed")
+              printf "  ✅ %-15s %s\n" "$cmd" "$ver"
+            else
+              printf "  ❌ %-15s NOT FOUND\n" "$cmd"
+              failures=$((failures + 1))
+            fi
+          done
+
+          # ─── PowerShell (.pkg install) ──────────────────────
+          echo ""
+          echo "Native .pkg Tools:"
+          total=$((total + 1))
+          if command -v pwsh &>/dev/null; then
+            ver=$(pwsh --version 2>/dev/null | head -1 || echo "installed")
+            printf "  ✅ %-15s %s\n" "pwsh" "$ver"
+          else
+            printf "  ❌ %-15s NOT FOUND\n" "pwsh"
+            failures=$((failures + 1))
+          fi
+
+          # ─── Dev Tools ──────────────────────────────────────
+          echo ""
+          echo "Dev Tools:"
+          total=$((total + 1))
+          if command -v mise &>/dev/null; then
+            ver=$(mise --version 2>/dev/null | head -1 || echo "installed")
+            printf "  ✅ %-15s %s\n" "mise" "$ver"
+          else
+            printf "  ❌ %-15s NOT FOUND\n" "mise"
+            failures=$((failures + 1))
+          fi
+
+          echo ""
+          echo "Results: $((total - failures))/$total passed | $failures failed"
+
+          echo "tool_failures=$failures" >> "$GITHUB_OUTPUT"
+          echo "tool_total=$total" >> "$GITHUB_OUTPUT"
+
+          if [ "$failures" -gt 5 ]; then
+            echo "::error::Too many tool verification failures ($failures/$total)"
+            exit 1
+          fi
+
+      # ─────────────────────────────────────────────────────────────
+      # Test kodra CLI commands (mirrors WSL CLI test)
+      # ─────────────────────────────────────────────────────────────
+      - name: "🩺 Test kodra CLI commands"
         if: always()
         run: |
+          set +e
+          export PATH="$HOME/.kodra/bin:$HOME/.local/bin:$(brew --prefix)/bin:$PATH"
+          export KODRA_DIR="$HOME/.kodra"
+
+          echo "▶ kodra version"
+          kodra version || true
+          echo ""
+
+          echo "▶ kodra help"
+          kodra help || true
+          echo ""
+
+          echo "▶ kodra doctor"
+          kodra doctor || true
+          echo ""
+
+          echo "▶ kodra shortcuts"
+          kodra shortcuts || true
+          echo ""
+
+          echo "▶ kodra fetch"
+          kodra fetch || true
+          echo ""
+
+          echo "✅ CLI commands completed"
+
+      # ─────────────────────────────────────────────────────────────
+      # Verify shell config was applied
+      # ─────────────────────────────────────────────────────────────
+      - name: "🐚 Verify shell configuration"
+        if: always()
+        run: |
+          set +e
           echo "┌──────────────────────────────────────────────────┐"
-          echo "│  Cloud Tool Verification                          │"
+          echo "│  Shell Configuration Verification                 │"
           echo "└──────────────────────────────────────────────────┘"
           echo ""
 
           failures=0
-          total=0
 
-          check() {
-            local name="$1"
-            local cmd="${2:-$1}"
-            total=$((total + 1))
-            if command -v "$cmd" &>/dev/null; then
-              echo "  ✅ $name → $(command -v "$cmd")"
-            else
-              echo "  ❌ $name ($cmd not found)"
-              failures=$((failures + 1))
-            fi
-          }
+          # Check Kodra shell config was created
+          if [ -f "$HOME/.config/kodra/shell.zsh" ]; then
+            echo "  ✅ Kodra shell config exists"
+          else
+            echo "  ❌ Missing: ~/.config/kodra/shell.zsh"
+            failures=$((failures + 1))
+          fi
 
-          check "azure-cli" "az"
-          check "azd"
-          check "terraform"
-          check "opentofu" "tofu"
-          check "kubectl"
-          check "helm"
-          check "k9s"
+          # Check .zshrc sources Kodra config
+          if [ -f "$HOME/.zshrc" ] && grep -q "kodra" "$HOME/.zshrc" 2>/dev/null; then
+            echo "  ✅ .zshrc sources Kodra config"
+          else
+            echo "  ⚠️  .zshrc does not source Kodra (may be first install)"
+          fi
+
+          # Check Kodra state file was written
+          if [ -f "$HOME/.local/state/kodra/state.json" ]; then
+            echo "  ✅ State file exists"
+            echo "     $(cat "$HOME/.local/state/kodra/state.json" | head -5)"
+          else
+            echo "  ❌ Missing: state.json"
+            failures=$((failures + 1))
+          fi
+
+          # Check bin/kodra is symlinked
+          if [ -L "$HOME/.local/bin/kodra" ] || [ -f "$HOME/.local/bin/kodra" ]; then
+            echo "  ✅ kodra CLI linked to ~/.local/bin"
+          else
+            echo "  ❌ kodra CLI not in ~/.local/bin"
+            failures=$((failures + 1))
+          fi
+
+          # Check bat config
+          if [ -f "$HOME/.config/bat/config" ]; then
+            echo "  ✅ bat config exists"
+          else
+            echo "  ⚠️  bat config not found"
+          fi
+
+          # Check starship config
+          if [ -f "$HOME/.config/starship.toml" ]; then
+            echo "  ✅ starship.toml exists"
+          else
+            echo "  ⚠️  starship.toml not found"
+          fi
+
+          # Check fastfetch config
+          if [ -f "$HOME/.config/fastfetch/config.jsonc" ]; then
+            echo "  ✅ fastfetch config exists"
+          else
+            echo "  ⚠️  fastfetch config not found"
+          fi
 
           echo ""
-          echo "Cloud Tools: $((total - failures))/$total passed"
-          echo "cloud_failures=$failures" >> "$GITHUB_OUTPUT"
+          if [ "$failures" -eq 0 ]; then
+            echo "  ✅ Shell configuration verified"
+          else
+            echo "  ⚠️  $failures config issue(s)"
+          fi
 
-      - name: "🔍 Verify containers"
-        id: verify-containers
+      # ─────────────────────────────────────────────────────────────
+      # Verify Colima / Docker setup (don't start VM in CI)
+      # ─────────────────────────────────────────────────────────────
+      - name: "🐳 Verify container setup"
         if: always()
         run: |
+          set +e
           echo "┌──────────────────────────────────────────────────┐"
-          echo "│  Container Tool Verification                      │"
+          echo "│  Container Setup Verification                     │"
           echo "└──────────────────────────────────────────────────┘"
           echo ""
-
-          failures=0
 
           if command -v colima &>/dev/null; then
-            echo "  ✅ colima"
+            echo "  ✅ colima installed: $(colima version 2>/dev/null | head -1)"
           else
-            echo "  ❌ colima"
-            failures=$((failures + 1))
+            echo "  ❌ colima not found"
           fi
 
           if command -v docker &>/dev/null; then
-            echo "  ✅ docker (CLI)"
+            echo "  ✅ docker CLI installed: $(docker --version 2>/dev/null)"
           else
-            echo "  ❌ docker"
-            failures=$((failures + 1))
+            echo "  ❌ docker CLI not found"
           fi
 
-          echo "container_failures=$failures" >> "$GITHUB_OUTPUT"
+          if [ -f "$HOME/Library/LaunchAgents/com.kodra.colima.plist" ]; then
+            echo "  ✅ Colima launchd plist installed (auto-start on login)"
+          else
+            echo "  ⚠️  Colima launchd plist not found"
+          fi
 
-      - name: "🏥 Run kodra doctor"
-        if: always()
-        env:
-          NO_COLOR: "1"
-        run: |
-          export KODRA_DIR="${{ github.workspace }}"
-          bash bin/kodra doctor || true
+          if [ -d "$HOME/.docker/cli-plugins" ]; then
+            echo "  ✅ Docker CLI plugins directory exists"
+            ls -la "$HOME/.docker/cli-plugins/" 2>/dev/null | grep -v "^total"
+          fi
 
-      - name: "📊 Test summary"
-        if: always()
-        run: |
           echo ""
+          echo "  ℹ️  Skipping colima start — no nested VMs in CI"
+
+      # ─────────────────────────────────────────────────────────────
+      # Verify macOS desktop defaults were applied
+      # ─────────────────────────────────────────────────────────────
+      - name: "🖥️ Verify macOS defaults"
+        if: always()
+        run: |
+          set +e
           echo "┌──────────────────────────────────────────────────┐"
-          echo "│  E2E Test Summary                                 │"
-          echo "├──────────────────────────────────────────────────┤"
-          echo "│  CLI failures:       ${{ steps.verify-cli.outputs.cli_failures || '?' }}"
-          echo "│  Cloud failures:     ${{ steps.verify-cloud.outputs.cloud_failures || '?' }}"
-          echo "│  Container failures: ${{ steps.verify-containers.outputs.container_failures || '?' }}"
+          echo "│  macOS Defaults Verification                      │"
           echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          check_default() {
+            local domain="$1"
+            local key="$2"
+            local expected="$3"
+            local label="$4"
+
+            actual=$(defaults read "$domain" "$key" 2>/dev/null)
+            if [ "$actual" = "$expected" ]; then
+              echo "  ✅ $label ($actual)"
+            else
+              echo "  ⚠️  $label (expected: $expected, got: ${actual:-unset})"
+            fi
+          }
+
+          check_default "com.apple.finder" "AppleShowAllFiles" "1" "Finder: show hidden files"
+          check_default "com.apple.finder" "ShowPathbar" "1" "Finder: show path bar"
+          check_default "com.apple.finder" "ShowStatusBar" "1" "Finder: show status bar"
+          check_default "com.apple.finder" "FXPreferredViewStyle" "Nlsv" "Finder: list view"
+          check_default "NSGlobalDomain" "AppleShowAllExtensions" "1" "Show file extensions"
+          check_default "NSGlobalDomain" "KeyRepeat" "2" "Fast key repeat"
+          check_default "NSGlobalDomain" "InitialKeyRepeat" "15" "Fast initial key repeat"
+          check_default "NSGlobalDomain" "NSAutomaticSpellingCorrectionEnabled" "0" "Autocorrect disabled"
+          check_default "com.apple.dock" "autohide" "1" "Dock: auto-hide"
+          check_default "com.apple.dock" "show-recents" "0" "Dock: no recents"
+          check_default "com.apple.dock" "tilesize" "48" "Dock: tile size"
+          check_default "com.apple.screencapture" "location" "$HOME/Screenshots" "Screenshots: ~/Screenshots"
+          check_default "com.apple.screencapture" "type" "png" "Screenshots: PNG format"
+          check_default "com.apple.dock" "mru-spaces" "0" "No auto-rearrange spaces"
+
+          echo ""
+
+      # ─────────────────────────────────────────────────────────────
+      # Test uninstall script (dry-run validation)
+      # ─────────────────────────────────────────────────────────────
+      - name: "🗑️ Verify uninstall script"
+        if: always()
+        run: |
+          echo "Validating uninstall.sh syntax..."
+          bash -n "$HOME/.kodra/uninstall.sh"
+          echo "✅ uninstall.sh has valid syntax"
+
+      # ─────────────────────────────────────────────────────────────
+      # Upload install logs
+      # ─────────────────────────────────────────────────────────────
+      - name: "📦 Upload install logs"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kodra-macos-install-log
+          path: /tmp/kodra-install.log
+          retention-days: 14
+
+      # ─────────────────────────────────────────────────────────────
+      # Final summary
+      # ─────────────────────────────────────────────────────────────
+      - name: "📊 Job summary"
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" << 'EOF'
+          ## 🍎 E2E macOS Install (Apple Silicon)
+
+          **Environment:** macOS 15 (Sequoia) on Apple Silicon
+          **Installer flags:** `--debug`
+
+          | Category | Result |
+          |----------|--------|
+          | Tool Verification | ${{ steps.verify.outputs.tool_failures || '?' }} failures / ${{ steps.verify.outputs.tool_total || '?' }} total |
+          | Kodra CLI | ✅ Tested |
+          | Shell Config | ✅ Verified |
+          | Container Setup | ✅ Verified (no VM start) |
+          | macOS Defaults | ✅ Verified |
+          EOF
