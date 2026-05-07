@@ -1,5 +1,13 @@
 User-agent: *
-Allow: /boot.sh
-Disallow: /
+Allow: /
+
+Disallow: /install/
+Disallow: /uninstall/
+Disallow: /lib/
+Disallow: /bin/
+Disallow: /tests/
+Disallow: /migrations/
+Disallow: /packages/
+Disallow: /configs/
 
 Sitemap: https://kodra.macos.codetocloud.io/sitemap.xml
