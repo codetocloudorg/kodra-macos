@@ -84,6 +84,47 @@ launchctl unload ~/Library/LaunchAgents/com.kodra.colima.plist
 launchctl load ~/Library/LaunchAgents/com.kodra.colima.plist
 ```
 
+### Podman
+
+#### Machine won't start
+```bash
+# Check machine status
+podman machine info
+
+# Remove and recreate
+podman machine rm
+podman machine init --cpus 4 --memory 8192 --rootful
+podman machine start
+```
+
+#### "docker" command not found (Podman stack)
+```bash
+# Install Docker CLI compatibility shim
+brew install podman-docker
+
+# Verify
+docker --version  # Should show "podman version ..."
+```
+
+#### Podman Desktop won't connect
+```bash
+# Ensure machine is running
+podman machine start
+
+# Verify socket
+podman info
+```
+
+#### Auto-start not working
+```bash
+# Check launchd agent
+launchctl list | grep podman
+
+# Reload agent
+launchctl unload ~/Library/LaunchAgents/com.kodra.podman.plist
+launchctl load ~/Library/LaunchAgents/com.kodra.podman.plist
+```
+
 ### Ghostty
 
 #### Font not rendering correctly

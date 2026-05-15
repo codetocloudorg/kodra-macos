@@ -13,12 +13,15 @@ curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 ## What Kodra macOS Installs
 
 - Azure CLI, Azure Developer CLI (azd), Bicep, Terraform, OpenTofu
+- OpenShift CLI (oc) and Ansible for Red Hat ecosystem
 - GitHub CLI with Copilot CLI for AI-powered terminal workflows
 - Colima + Docker CLI (no Docker Desktop license required), lazydocker
+- **OR** Podman + Podman Desktop + podman-compose (daemonless alternative)
+- Container security: Trivy (scanner) and dive (image layer explorer)
 - Kubernetes: kubectl, Helm, k9s
 - Modern terminal: Ghostty, Starship prompt, JetBrainsMono Nerd Font
-- CLI tools: bat, eza, fd, fzf, ripgrep, zoxide, btop, fastfetch, yq
-- Git: lazygit
+- CLI tools: bat, eza, fd, fzf, jq, delta, direnv, ripgrep, zoxide, btop, fastfetch, yq, httpie, tldr, shellcheck, neovim
+- Git: lazygit, act (run GitHub Actions locally)
 - Developer tools: mise (polyglot runtime manager), VS Code with extensions
 - PowerShell 7 via native .pkg installer
 
@@ -49,5 +52,5 @@ curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 
 - License: MIT
 - Platforms: macOS 14+ (Sonoma or later), Apple Silicon (M1/M2/M3/M4)
-- Version: 0.3.0
+- Version: 0.4.0
 - Developed by: Code To Cloud Inc. (Calgary, Alberta, Canada)

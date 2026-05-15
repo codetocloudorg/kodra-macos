@@ -5,6 +5,33 @@ All notable changes to Kodra macOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-05-15
+
+### Added
+- Podman as alternative container runtime option alongside Docker (Colima)
+- New installer: `install/containers/podman.sh` — installs Podman, podman-compose, Podman Desktop, and podman-docker
+- Interactive container runtime selection during install (Docker or Podman)
+- Podman machine auto-init for Apple Silicon (4 CPU, 8GB RAM, rootful)
+- Podman launchd plist for auto-start on login (`com.kodra.podman.plist`)
+- Docker CLI compatibility via `podman-docker` when Podman is selected
+- 9 new CLI tools: jq, delta (git-delta), direnv, neovim, httpie, shellcheck, tldr, act
+- Container security tools: trivy (vulnerability scanner), dive (image layer explorer)
+- Red Hat ecosystem: OpenShift CLI (oc), Ansible
+- delta auto-configured as git pager with side-by-side diffs and line numbers
+- direnv hooked into zsh shell config
+
+### Changed
+- `install.sh` — new container runtime prompt: option 1 (Docker/Colima) or option 2 (Podman/Podman Desktop)
+- `install.sh` — cloud section renamed to "Azure, Red Hat & Cloud Tools" with oc and ansible
+- `bin/kodra doctor` — checks all new tools; detects saved container runtime from state
+- `bin/kodra cleanup` — prunes images for whichever runtime is installed (Docker and/or Podman)
+- `bin/kodra install` menu — updated container label to reflect both options
+- `uninstall.sh` — cleans up both Colima and Podman launchd plists
+- Container runtime selection saved to state (`container.runtime`) for doctor and other commands
+- Next-steps banner dynamically shows Colima or Podman start command based on selection
+- Updated README, llms.txt, llms-full.txt, cheatsheet, FAQ, troubleshooting docs
+- Tool count increased from 25+ to 40+
+
 ## [0.3.0] - 2026-05-06
 
 ### Added
@@ -66,6 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E workflow mimicking real user install on Apple Silicon runner
 - Clean uninstaller (`uninstall.sh`)
 
+[0.4.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.4.0
 [0.3.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.3.0
 [0.2.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.2.0
 [0.1.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.1.0

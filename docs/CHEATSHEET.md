@@ -66,6 +66,21 @@ Quick reference for all Kodra-installed tools and shortcuts.
 | `gh copilot suggest` | AI command suggestions |
 | `gh copilot explain` | AI command explanations |
 | `lazygit` / `lg` | Visual Git TUI |
+| `act` | Run GitHub Actions workflows locally |
+
+## New CLI Tools
+
+| Command | Description |
+|---------|-------------|
+| `jq '.key'` | Parse and filter JSON |
+| `delta` | Syntax-highlighted git diffs (auto-configured as git pager) |
+| `direnv allow` | Load `.envrc` environment for current directory |
+| `http GET url` | Human-friendly HTTP requests (HTTPie) |
+| `tldr <command>` | Quick man page examples |
+| `shellcheck script.sh` | Lint shell scripts |
+| `nvim file` | Open file in Neovim |
+| `trivy image myapp` | Scan container image for vulnerabilities |
+| `dive myapp:latest` | Explore image layers and wasted space |
 
 ## Azure CLI
 
@@ -78,6 +93,8 @@ Quick reference for all Kodra-installed tools and shortcuts.
 
 ## Container Tools
 
+### Docker Stack (Colima)
+
 | Command | Description |
 |---------|-------------|
 | `colima start` | Start container runtime |
@@ -85,6 +102,19 @@ Quick reference for all Kodra-installed tools and shortcuts.
 | `docker ps` | List running containers |
 | `docker compose up` | Start compose stack |
 | `lazydocker` / `ld` | Visual Docker TUI |
+
+### Podman Stack
+
+| Command | Description |
+|---------|-------------|
+| `podman machine start` | Start Podman VM |
+| `podman machine stop` | Stop Podman VM |
+| `podman ps` | List running containers |
+| `podman-compose up` | Start compose stack |
+| `podman build -t myapp .` | Build a container image |
+| Podman Desktop | GUI for containers, images, pods |
+
+> During install, you choose either the Docker or Podman stack. If `podman-docker` is installed, `docker` commands also work with Podman.
 
 ## Kubernetes
 
@@ -94,3 +124,14 @@ Quick reference for all Kodra-installed tools and shortcuts.
 | `kubectl get svc` | List services |
 | `helm install` | Install a Helm chart |
 | `k9s` | Visual Kubernetes TUI |
+
+## Red Hat / OpenShift
+
+| Command | Description |
+|---------|-------------|
+| `oc login` | Authenticate to OpenShift cluster |
+| `oc new-project myapp` | Create a new OpenShift project |
+| `oc get pods` | List pods (OpenShift-aware) |
+| `oc apply -f manifest.yaml` | Apply resources to OpenShift |
+| `ansible-playbook play.yml` | Run an Ansible playbook |
+| `ansible-galaxy install role` | Install Ansible roles from Galaxy |

@@ -15,7 +15,7 @@ Kodra macOS is an opinionated, one-command developer environment for macOS Apple
 | Shell | bash/zsh | zsh (macOS default) |
 | Prompt | Oh My Posh | Starship |
 | Terminal | Windows Terminal | Ghostty |
-| Docker | Docker CE (native) | Colima + Docker CLI |
+| Docker | Docker CE (native) | Colima or Podman + Docker CLI |
 | Service Manager | systemd | launchd |
 
 ### Does it work on Intel Macs?
@@ -62,6 +62,10 @@ This removes symlinks, launchd agents, shell config entries, and the `~/.kodra` 
 ### Why Colima instead of Docker Desktop?
 
 Docker Desktop requires a paid license for commercial use in organizations with 250+ employees or $10M+ revenue. Colima is a free, open-source alternative that runs Docker in a lightweight Lima VM. See [docs/COLIMA_VS_DESKTOP.md](COLIMA_VS_DESKTOP.md).
+
+### Can I use Podman instead of Docker?
+
+Yes! During installation, Kodra asks you to choose between the **Docker stack** (Colima + Docker CLI + lazydocker) and the **Podman stack** (Podman + Podman Desktop + podman-compose). Both are free and license-free. Podman is daemonless and rootless by default, and `podman-docker` provides Docker CLI compatibility if needed.
 
 ### Why Ghostty instead of iTerm2?
 

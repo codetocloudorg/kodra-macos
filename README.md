@@ -18,7 +18,7 @@
 [![macOS Install (Apple Silicon E2E)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon-black?logo=apple)](https://github.com/codetocloudorg/kodra-macos)
-[![Version](https://img.shields.io/badge/version-0.3.0-purple)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-purple)](CHANGELOG.md)
 
 </div>
 
@@ -41,16 +41,24 @@ That's it. From a fresh macOS to `azd up` in minutes.
 |------|---------|
 | `bat` | Cat with syntax highlighting |
 | `btop` | System monitor |
+| `delta` | Beautiful git diffs with syntax highlighting |
+| `direnv` | Per-directory environment variables |
 | `eza` | Modern `ls` replacement |
 | `fastfetch` | System info display |
 | `fd` | Modern `find` replacement |
 | `fzf` | Fuzzy finder |
 | `gh` | GitHub CLI |
 | `gh copilot` | GitHub Copilot CLI |
+| `httpie` | Human-friendly HTTP client |
+| `jq` | JSON processor |
 | `lazygit` | Git TUI |
+| `neovim` | Terminal editor |
 | `ripgrep` | Fast grep |
+| `shellcheck` | Shell script linter |
+| `tldr` | Simplified man pages |
 | `yq` | YAML processor |
 | `zoxide` | Smart `cd` |
+| `act` | Run GitHub Actions locally |
 
 ### Cloud & Infrastructure
 | Tool | Purpose |
@@ -64,6 +72,8 @@ That's it. From a fresh macOS to `azd up` in minutes.
 | `helm` | Kubernetes package manager |
 | `k9s` | Kubernetes TUI |
 | `pwsh` | PowerShell 7 (via `.pkg`) |
+| `oc` | OpenShift CLI (Red Hat) |
+| `ansible` | Red Hat Ansible automation |
 
 ### Containers (No Docker Desktop)
 | Tool | Purpose |
@@ -74,6 +84,8 @@ That's it. From a fresh macOS to `azd up` in minutes.
 | `podman` | Daemonless container engine (alternative to Docker) |
 | `podman-compose` | Compose support for Podman |
 | Podman Desktop | GUI for managing containers, images, and pods |
+| `trivy` | Container & IaC security scanner |
+| `dive` | Explore container image layers |
 
 > **Note:** During installation you choose either the **Docker** stack (Colima + Docker CLI + lazydocker) or the **Podman** stack (Podman + Podman Desktop + podman-compose). Both are license-free.
 

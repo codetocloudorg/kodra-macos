@@ -216,9 +216,9 @@ fi
 
 echo -e "    Will install:"
 [ "$INSTALL_SHELL" = "true" ] && echo -e "    \033[0;32m✔\033[0m Shell environment (Starship prompt, aliases)"
-[ "$INSTALL_CLI_TOOLS" = "true" ] && echo -e "    \033[0;32m✔\033[0m CLI utilities (bat, eza, fzf, ripgrep, etc.)"
-[ "$INSTALL_GIT_TOOLS" = "true" ] && echo -e "    \033[0;32m✔\033[0m Git tools (GitHub CLI, lazygit, Copilot CLI)"
-[ "$INSTALL_AZURE" = "true" ] && echo -e "    \033[0;32m✔\033[0m Azure tools (CLI, azd, Bicep, Terraform, OpenTofu, PowerShell)"
+[ "$INSTALL_CLI_TOOLS" = "true" ] && echo -e "    \033[0;32m✔\033[0m CLI utilities (bat, eza, fzf, jq, delta, neovim, etc.)"
+[ "$INSTALL_GIT_TOOLS" = "true" ] && echo -e "    \033[0;32m✔\033[0m Git tools (GitHub CLI, lazygit, Copilot CLI, act)"
+[ "$INSTALL_AZURE" = "true" ] && echo -e "    \033[0;32m✔\033[0m Cloud tools (Azure CLI, azd, Terraform, OpenShift, Ansible)"
 if [ "$INSTALL_CONTAINERS" = "true" ]; then
     if [ "$CONTAINER_RUNTIME" = "podman" ]; then
         echo -e "    \033[0;32m✔\033[0m Container tools (Podman, Podman Desktop, podman-compose)"
@@ -254,11 +254,18 @@ if [ "$INSTALL_CLI_TOOLS" = "true" ]; then
 
     run_installer "$INSTALL_DIR/cli-tools/bat.sh"
     run_installer "$INSTALL_DIR/cli-tools/btop.sh"
+    run_installer "$INSTALL_DIR/cli-tools/delta.sh"
+    run_installer "$INSTALL_DIR/cli-tools/direnv.sh"
     run_installer "$INSTALL_DIR/cli-tools/eza.sh"
     run_installer "$INSTALL_DIR/cli-tools/fastfetch.sh"
     run_installer "$INSTALL_DIR/cli-tools/fd.sh"
     run_installer "$INSTALL_DIR/cli-tools/fzf.sh"
+    run_installer "$INSTALL_DIR/cli-tools/httpie.sh"
+    run_installer "$INSTALL_DIR/cli-tools/jq.sh"
+    run_installer "$INSTALL_DIR/cli-tools/neovim.sh"
     run_installer "$INSTALL_DIR/cli-tools/ripgrep.sh"
+    run_installer "$INSTALL_DIR/cli-tools/shellcheck.sh"
+    run_installer "$INSTALL_DIR/cli-tools/tldr.sh"
     run_installer "$INSTALL_DIR/cli-tools/yq.sh"
     run_installer "$INSTALL_DIR/cli-tools/zoxide.sh"
 fi
@@ -272,13 +279,14 @@ if [ "$INSTALL_GIT_TOOLS" = "true" ]; then
     run_installer "$INSTALL_DIR/cli-tools/github-cli.sh"
     run_installer "$INSTALL_DIR/cli-tools/copilot-cli.sh"
     run_installer "$INSTALL_DIR/cli-tools/lazygit.sh"
+    run_installer "$INSTALL_DIR/cli-tools/act.sh"
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Azure & Cloud Tools
+# Azure, Red Hat & Cloud Tools
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 if [ "$INSTALL_AZURE" = "true" ]; then
-    log_section "Azure & Cloud Tools"
+    log_section "Azure, Red Hat & Cloud Tools"
 
     run_installer "$INSTALL_DIR/cloud/azure-cli.sh"
     run_installer "$INSTALL_DIR/cloud/azd.sh"
@@ -286,6 +294,8 @@ if [ "$INSTALL_AZURE" = "true" ]; then
     run_installer "$INSTALL_DIR/cloud/terraform.sh"
     run_installer "$INSTALL_DIR/cloud/opentofu.sh"
     run_installer "$INSTALL_DIR/cloud/powershell.sh"
+    run_installer "$INSTALL_DIR/cloud/openshift-cli.sh"
+    run_installer "$INSTALL_DIR/cloud/ansible.sh"
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -301,6 +311,10 @@ if [ "$INSTALL_CONTAINERS" = "true" ]; then
         run_installer "$INSTALL_DIR/containers/docker-cli.sh"
         run_installer "$INSTALL_DIR/containers/lazydocker.sh"
     fi
+
+    # Container security & inspection (both stacks)
+    run_installer "$INSTALL_DIR/containers/trivy.sh"
+    run_installer "$INSTALL_DIR/containers/dive.sh"
 
     save_state "container.runtime" "$CONTAINER_RUNTIME"
 fi

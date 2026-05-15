@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+/#!/usr/bin/env bash
 # Kodra macOS — Uninstall bat
 KODRA_DIR="${KODRA_DIR:-$HOME/.kodra}"
 source "$KODRA_DIR/lib/logging.sh" 2>/dev/null || true

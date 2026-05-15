@@ -6,7 +6,7 @@
 
 Kodra macOS is a one-command Azure developer environment for macOS on Apple Silicon. It installs and configures 30+ cloud-native development tools with zero manual configuration. Built by [Code To Cloud Inc.](https://www.codetocloud.io) in Calgary, Alberta, Canada.
 
-- **Version**: 0.3.0
+- **Version**: 0.4.0
 - **Platform**: macOS 14 (Sonoma) or later, Apple Silicon (M1/M2/M3/M4)
 - **License**: MIT
 - **Website**: https://kodra.macos.codetocloud.io
@@ -28,21 +28,29 @@ This clones the repo to `~/.kodra` and runs `install.sh`, which:
 
 ## Tools Installed
 
-### CLI Tools (12)
+### CLI Tools (19)
 - **bat** — Cat with syntax highlighting (`brew install bat`)
 - **btop** — System resource monitor (`brew install btop`)
+- **delta** — Beautiful git diffs with syntax highlighting (`brew install git-delta`)
+- **direnv** — Per-directory environment variables (`brew install direnv`)
 - **eza** — Modern `ls` replacement (`brew install eza`)
 - **fastfetch** — System info display (`brew install fastfetch`)
 - **fd** — Modern `find` replacement (`brew install fd`)
 - **fzf** — Fuzzy finder (`brew install fzf`)
 - **gh** — GitHub CLI (`brew install gh`)
 - **gh copilot** — GitHub Copilot CLI (`gh extension install github/gh-copilot`)
+- **httpie** — Human-friendly HTTP client (`brew install httpie`)
+- **jq** — JSON processor (`brew install jq`)
 - **lazygit** — Git TUI (`brew install lazygit`)
+- **neovim** — Terminal editor (`brew install neovim`)
 - **ripgrep** — Fast grep replacement (`brew install ripgrep`)
+- **shellcheck** — Shell script linter (`brew install shellcheck`)
+- **tldr** — Simplified man pages (`brew install tldr`)
 - **yq** — YAML processor (`brew install yq`)
 - **zoxide** — Smart `cd` command (`brew install zoxide`)
+- **act** — Run GitHub Actions locally (`brew install act`)
 
-### Cloud & Infrastructure (9)
+### Cloud & Infrastructure (11)
 - **az** — Azure CLI (`brew install azure-cli`)
 - **azd** — Azure Developer CLI (`brew install azd`)
 - **bicep** — Azure Bicep (`az bicep install`)
@@ -52,11 +60,21 @@ This clones the repo to `~/.kodra` and runs `install.sh`, which:
 - **helm** — Kubernetes package manager (`brew install helm`)
 - **k9s** — Kubernetes TUI (`brew install k9s`)
 - **pwsh** — PowerShell 7 (native `.pkg` from Microsoft GitHub releases)
+- **oc** — OpenShift CLI (`brew install openshift-cli`)
+- **ansible** — Red Hat Ansible automation (`brew install ansible`)
 
-### Containers (3)
+### Containers (3–4, user chooses Docker or Podman stack)
 - **colima** — Lightweight container runtime, replaces Docker Desktop (`brew install colima`)
 - **docker** — Docker CLI + Compose plugin (`brew install docker docker-compose`)
 - **lazydocker** — Docker TUI (`brew install lazydocker`)
+- **podman** — Daemonless container engine (`brew install podman`)
+- **podman-compose** — Compose support for Podman (`brew install podman-compose`)
+- **Podman Desktop** — GUI for managing containers, images, pods (`brew install --cask podman-desktop`)
+- **podman-docker** — Docker CLI compatibility shim (`brew install podman-docker`)
+- **trivy** — Container & IaC security scanner (`brew install trivy`)
+- **dive** — Explore container image layers (`brew install dive`)
+
+> During install, users choose either the Docker stack (Colima + Docker CLI + lazydocker) or the Podman stack (Podman + Podman Desktop + podman-compose). Both are license-free.
 
 ### Terminal & Shell (4)
 - **Ghostty** — GPU-accelerated terminal with Tokyo Night theme (`brew install --cask ghostty`)
@@ -117,9 +135,9 @@ kodra-macos/
 │   ├── ui.sh               # ASCII banners, progress, spinners
 │   └── package.sh          # Homebrew package abstraction
 ├── install/
-│   ├── cli-tools/          # 12 CLI tool installers
-│   ├── cloud/              # 9 cloud tool installers
-│   ├── containers/         # 3 container tool installers
+│   ├── cli-tools/          # 19 CLI tool installers
+│   ├── cloud/              # 11 cloud tool installers
+│   ├── containers/         # 6 container tool installers (docker or podman + trivy, dive)
 │   ├── dev-tools/          # 2 dev tool installers
 │   ├── terminal/           # 4 terminal/shell installers
 │   └── desktop/            # 3 macOS defaults scripts
