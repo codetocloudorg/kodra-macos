@@ -71,6 +71,11 @@ That's it. From a fresh macOS to `azd up` in minutes.
 | `colima` | Lightweight container runtime (replaces Docker Desktop) |
 | `docker` | Docker CLI + Compose |
 | `lazydocker` | Docker TUI |
+| `podman` | Daemonless container engine (alternative to Docker) |
+| `podman-compose` | Compose support for Podman |
+| Podman Desktop | GUI for managing containers, images, and pods |
+
+> **Note:** During installation you choose either the **Docker** stack (Colima + Docker CLI + lazydocker) or the **Podman** stack (Podman + Podman Desktop + podman-compose). Both are license-free.
 
 ### Terminal & Shell
 | Tool | Purpose |
@@ -154,7 +159,7 @@ kodra-macos/
 ├── install/
 │   ├── cli-tools/          # bat, eza, fzf, gh, ripgrep, etc.
 │   ├── cloud/              # az, azd, terraform, kubectl, etc.
-│   ├── containers/         # colima, docker-cli, lazydocker
+│   ├── containers/         # colima, docker-cli, lazydocker, podman
 │   ├── dev-tools/          # mise, vscode
 │   ├── terminal/           # ghostty, starship, nerd-fonts, shell-config
 │   └── desktop/            # dock, finder, system defaults

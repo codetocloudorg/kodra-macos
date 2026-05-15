@@ -219,9 +219,29 @@ cmd_doctor() {
 
     echo ""
     echo -e "  ${C_WHITE}Containers:${C_RESET}"
-    check_tool "colima" "colima"
-    check_tool "docker" "docker"
-    check_tool "lazydocker" "lazydocker"
+    # Detect container runtime: check state file, fall back to what's installed
+    local container_runtime="docker"
+    local state_file="${XDG_STATE_HOME:-$HOME/.local/state}/kodra/state.json"
+    if [[ -f "$state_file" ]]; then
+        local saved_runtime
+        saved_runtime="$(python3 -c "
+import json
+with open('${state_file}', 'r') as f:
+    data = json.load(f)
+print(data.get('container.runtime', ''))" 2>/dev/null)"
+        if [[ -n "$saved_runtime" ]]; then
+            container_runtime="$saved_runtime"
+        fi
+    fi
+
+    if [[ "$container_runtime" == "podman" ]]; then
+        check_tool "podman" "podman"
+        check_tool "podman-compose" "podman-compose"
+    else
+        check_tool "colima" "colima"
+        check_tool "docker" "docker"
+        check_tool "lazydocker" "lazydocker"
+    fi
 
     echo ""
     echo -e "  ${C_WHITE}Terminal:${C_RESET}"
@@ -259,8 +279,13 @@ cmd_cleanup() {
     echo -e "  ${C_CYAN}▶${C_RESET} Cleaning Homebrew cache..."
     brew cleanup --prune=7 -s 2>/dev/null
 
-    echo -e "  ${C_CYAN}▶${C_RESET} Removing old Docker images..."
-    docker image prune -f 2>/dev/null || true
+    echo -e "  ${C_CYAN}▶${C_RESET} Removing old container images..."
+    if command -v podman &>/dev/null; then
+        podman image prune -f 2>/dev/null || true
+    fi
+    if command -v docker &>/dev/null; then
+        docker image prune -f 2>/dev/null || true
+    fi
 
     echo -e "  ${C_GREEN}✔${C_RESET} Cleanup complete"
 }
@@ -464,7 +489,7 @@ cmd_install() {
     echo ""
     echo -e "  ${C_CYAN}1)${C_RESET} CLI tools (bat, eza, fzf, ripgrep, etc.)"
     echo -e "  ${C_CYAN}2)${C_RESET} Cloud tools (az, azd, terraform, kubectl, etc.)"
-    echo -e "  ${C_CYAN}3)${C_RESET} Containers (colima, docker, lazydocker)"
+    echo -e "  ${C_CYAN}3)${C_RESET} Containers (colima/docker or podman)"
     echo -e "  ${C_CYAN}4)${C_RESET} Developer tools (mise, VS Code)"
     echo -e "  ${C_CYAN}5)${C_RESET} Terminal (ghostty, starship, nerd-fonts)"
     echo -e "  ${C_CYAN}6)${C_RESET} Everything"

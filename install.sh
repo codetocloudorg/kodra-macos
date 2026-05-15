@@ -150,6 +150,9 @@ INSTALL_CONTAINERS=true
 INSTALL_KUBERNETES=true
 INSTALL_DESKTOP=true
 
+# Container runtime: "docker" (Colima + Docker CLI) or "podman" (Podman + Podman Desktop)
+CONTAINER_RUNTIME="docker"
+
 # Check if interactive
 if [ -t 0 ] && [ -z "$KODRA_SKIP_PROMPTS" ]; then
     echo -e "    Choose what to install:"
@@ -188,17 +191,46 @@ else
     log_info "Non-interactive mode: Installing all components"
 fi
 
+# Container runtime selection (only if containers are being installed)
+if [ "$INSTALL_CONTAINERS" = "true" ] && [ -t 0 ] && [ -z "$KODRA_SKIP_PROMPTS" ]; then
+    echo -e "    Choose container runtime:"
+    echo ""
+    echo -e "    \033[0;36m1)\033[0m Docker (Colima + Docker CLI) — lightweight, no Docker Desktop license"
+    echo -e "    \033[0;36m2)\033[0m Podman (Podman + Podman Desktop) — daemonless, rootless containers"
+    echo ""
+
+    printf "    Choose an option [1-2] (default: 1): "
+    read -n 1 -r RUNTIME_REPLY
+    echo
+    echo ""
+
+    case $RUNTIME_REPLY in
+        2)
+            CONTAINER_RUNTIME="podman"
+            ;;
+        *)
+            CONTAINER_RUNTIME="docker"
+            ;;
+    esac
+fi
+
 echo -e "    Will install:"
 [ "$INSTALL_SHELL" = "true" ] && echo -e "    \033[0;32m✔\033[0m Shell environment (Starship prompt, aliases)"
 [ "$INSTALL_CLI_TOOLS" = "true" ] && echo -e "    \033[0;32m✔\033[0m CLI utilities (bat, eza, fzf, ripgrep, etc.)"
 [ "$INSTALL_GIT_TOOLS" = "true" ] && echo -e "    \033[0;32m✔\033[0m Git tools (GitHub CLI, lazygit, Copilot CLI)"
 [ "$INSTALL_AZURE" = "true" ] && echo -e "    \033[0;32m✔\033[0m Azure tools (CLI, azd, Bicep, Terraform, OpenTofu, PowerShell)"
-[ "$INSTALL_CONTAINERS" = "true" ] && echo -e "    \033[0;32m✔\033[0m Container tools (Colima, Docker CLI, lazydocker)"
+if [ "$INSTALL_CONTAINERS" = "true" ]; then
+    if [ "$CONTAINER_RUNTIME" = "podman" ]; then
+        echo -e "    \033[0;32m✔\033[0m Container tools (Podman, Podman Desktop, podman-compose)"
+    else
+        echo -e "    \033[0;32m✔\033[0m Container tools (Colima, Docker CLI, lazydocker)"
+    fi
+fi
 [ "$INSTALL_KUBERNETES" = "true" ] && echo -e "    \033[0;32m✔\033[0m Kubernetes tools (kubectl, Helm, k9s)"
 [ "$INSTALL_DESKTOP" = "true" ] && echo -e "    \033[0;32m✔\033[0m macOS desktop settings (Dock, Finder, keyboard)"
 echo ""
 
-export INSTALL_SHELL INSTALL_CLI_TOOLS INSTALL_GIT_TOOLS INSTALL_AZURE INSTALL_CONTAINERS INSTALL_KUBERNETES INSTALL_DESKTOP
+export INSTALL_SHELL INSTALL_CLI_TOOLS INSTALL_GIT_TOOLS INSTALL_AZURE INSTALL_CONTAINERS INSTALL_KUBERNETES INSTALL_DESKTOP CONTAINER_RUNTIME
 
 INSTALL_DIR="$SCRIPT_DIR/install"
 
@@ -257,14 +289,20 @@ if [ "$INSTALL_AZURE" = "true" ]; then
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Containers (Colima — no Docker Desktop)
+# Containers (Docker via Colima or Podman — no Docker Desktop)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 if [ "$INSTALL_CONTAINERS" = "true" ]; then
     log_section "Container Development"
 
-    run_installer "$INSTALL_DIR/containers/colima.sh"
-    run_installer "$INSTALL_DIR/containers/docker-cli.sh"
-    run_installer "$INSTALL_DIR/containers/lazydocker.sh"
+    if [ "$CONTAINER_RUNTIME" = "podman" ]; then
+        run_installer "$INSTALL_DIR/containers/podman.sh"
+    else
+        run_installer "$INSTALL_DIR/containers/colima.sh"
+        run_installer "$INSTALL_DIR/containers/docker-cli.sh"
+        run_installer "$INSTALL_DIR/containers/lazydocker.sh"
+    fi
+
+    save_state "container.runtime" "$CONTAINER_RUNTIME"
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -365,8 +403,13 @@ echo -e "║                                                                    
 echo -e "║  \033[0;36m2. Verify everything\033[0m                                                       ║"
 echo -e "║     Run: \033[1;37mkodra doctor\033[0m                                                       ║"
 echo -e "║                                                                              ║"
+if [ "${CONTAINER_RUNTIME:-docker}" = "podman" ]; then
+echo -e "║  \033[0;36m3. Start Podman\033[0m (container runtime)                                        ║"
+echo -e "║     Run: \033[1;37mpodman machine start\033[0m                                                ║"
+else
 echo -e "║  \033[0;36m3. Start Colima\033[0m (container runtime)                                        ║"
 echo -e "║     Run: \033[1;37mcolima start\033[0m                                                       ║"
+fi
 echo -e "║                                                                              ║"
 echo -e "║  \033[0;36m4. Configure your accounts\033[0m                                                 ║"
 echo -e "║     Run: \033[1;37mgh auth login\033[0m     (GitHub)                                         ║"

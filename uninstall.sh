@@ -46,6 +46,13 @@ if [[ -f "$HOME/Library/LaunchAgents/com.kodra.colima.plist" ]]; then
     echo "  ✔ Removed Colima launchd plist"
 fi
 
+# Remove Podman launchd plist
+if [[ -f "$HOME/Library/LaunchAgents/com.kodra.podman.plist" ]]; then
+    launchctl unload "$HOME/Library/LaunchAgents/com.kodra.podman.plist" 2>/dev/null || true
+    rm -f "$HOME/Library/LaunchAgents/com.kodra.podman.plist"
+    echo "  ✔ Removed Podman launchd plist"
+fi
+
 # Remove shell config source line
 if [[ -f "$HOME/.zshrc" ]]; then
     sed -i '' '/# Kodra macOS/d' "$HOME/.zshrc" 2>/dev/null || true
