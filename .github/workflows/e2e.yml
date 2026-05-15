@@ -148,8 +148,9 @@ jobs:
           # ─── Core CLI Tools ─────────────────────────────────
           EXPECTED_TOOLS=(
             "git" "curl" "jq"
-            "bat" "btop" "eza" "fzf" "rg" "zoxide" "yq"
+            "bat" "btop" "delta" "direnv" "eza" "fzf" "rg" "zoxide" "yq"
             "fastfetch" "lazygit" "gh" "fd"
+            "http" "nvim" "shellcheck" "tldr" "act"
           )
 
           echo "Core CLI Tools:"
@@ -167,6 +168,7 @@ jobs:
           # ─── Cloud & DevOps Tools ───────────────────────────
           CLOUD_TOOLS=(
             "az" "azd" "kubectl" "helm" "terraform" "tofu" "k9s"
+            "oc" "ansible"
           )
 
           echo ""
@@ -184,7 +186,7 @@ jobs:
 
           # ─── Container Tools ────────────────────────────────
           CONTAINER_TOOLS=(
-            "colima" "docker" "lazydocker"
+            "colima" "docker" "lazydocker" "trivy" "dive"
           )
 
           echo ""
