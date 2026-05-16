@@ -151,6 +151,7 @@ jobs:
             "bat" "btop" "delta" "direnv" "eza" "fzf" "rg" "zoxide" "yq"
             "fastfetch" "lazygit" "gh" "fd"
             "http" "nvim" "shellcheck" "tldr" "act"
+            "copilot"
           )
 
           echo "Core CLI Tools:"
@@ -398,6 +399,247 @@ jobs:
 
           echo ""
           echo "  ℹ️  Skipping colima start — no nested VMs in CI"
+
+      # ─────────────────────────────────────────────────────────────
+      # Verify Copilot CLI (cask + gh extension)
+      # ─────────────────────────────────────────────────────────────
+      - name: "🤖 Verify Copilot CLI"
+        if: always()
+        run: |
+          set +e
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Copilot CLI Verification                         │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          export PATH="$HOME/.kodra/bin:$HOME/.local/bin:$(brew --prefix)/bin:$PATH"
+
+          # Check standalone Copilot CLI (cask)
+          if command -v copilot &>/dev/null; then
+            echo "  ✅ copilot CLI installed: $(copilot --version 2>/dev/null | head -1 || echo 'ok')"
+          else
+            echo "  ❌ copilot CLI not found (brew install --cask copilot-cli)"
+          fi
+
+          # Check gh-copilot extension
+          if gh extension list 2>/dev/null | grep -q "copilot"; then
+            echo "  ✅ gh-copilot extension installed"
+          else
+            echo "  ⚠️  gh-copilot extension not found (may need auth)"
+          fi
+
+          echo ""
+
+      # ─────────────────────────────────────────────────────────────
+      # Verify container runtime selection & Docker CLI always present
+      # ─────────────────────────────────────────────────────────────
+      - name: "🔀 Verify container runtime selection"
+        if: always()
+        run: |
+          set +e
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Container Runtime Selection Verification          │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          export PATH="$HOME/.kodra/bin:$HOME/.local/bin:$(brew --prefix)/bin:$PATH"
+
+          # Docker CLI must always be present regardless of runtime
+          if command -v docker &>/dev/null; then
+            echo "  ✅ Docker CLI always installed ($(docker --version 2>/dev/null | head -1))"
+          else
+            echo "  ❌ Docker CLI missing — should always be installed"
+          fi
+
+          # Verify install.sh supports KODRA_CONTAINER_RUNTIME override
+          if grep -q "KODRA_CONTAINER_RUNTIME" "$HOME/.kodra/install.sh" 2>/dev/null; then
+            echo "  ✅ KODRA_CONTAINER_RUNTIME env override supported"
+          else
+            echo "  ❌ KODRA_CONTAINER_RUNTIME env override missing"
+          fi
+
+          # Verify install.sh supports KODRA_SKIP_PROMPTS for CI
+          if grep -q "KODRA_SKIP_PROMPTS" "$HOME/.kodra/install.sh" 2>/dev/null; then
+            echo "  ✅ KODRA_SKIP_PROMPTS supported for CI"
+          else
+            echo "  ❌ KODRA_SKIP_PROMPTS missing"
+          fi
+
+          # Verify /dev/tty prompt support (for curl | bash)
+          if grep -q "< /dev/tty" "$HOME/.kodra/install.sh" 2>/dev/null; then
+            echo "  ✅ Interactive prompts use /dev/tty (curl | bash compatible)"
+          else
+            echo "  ❌ Missing /dev/tty redirect for prompts"
+          fi
+
+          echo ""
+
+      # ─────────────────────────────────────────────────────────────
+      # Verify Podman installer structure (without running it)
+      # ─────────────────────────────────────────────────────────────
+      - name: "🦭 Verify Podman installer structure"
+        if: always()
+        run: |
+          set +e
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Podman Installer Structural Verification          │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          PODMAN_SH="$HOME/.kodra/install/containers/podman.sh"
+
+          if [ -f "$PODMAN_SH" ]; then
+            echo "  ✅ podman.sh exists"
+          else
+            echo "  ❌ podman.sh missing"
+            exit 0
+          fi
+
+          # Valid bash syntax
+          if bash -n "$PODMAN_SH" 2>/dev/null; then
+            echo "  ✅ podman.sh syntax valid"
+          else
+            echo "  ❌ podman.sh has syntax errors"
+          fi
+
+          # krunkit dependency (Apple Silicon requirement)
+          if grep -q "krunkit" "$PODMAN_SH"; then
+            echo "  ✅ krunkit dependency included (Apple Silicon)"
+          else
+            echo "  ❌ krunkit missing — Podman will fail on Apple Silicon"
+          fi
+
+          # DOCKER_HOST environment config
+          if grep -q "DOCKER_HOST" "$PODMAN_SH"; then
+            echo "  ✅ DOCKER_HOST configured for Podman socket"
+          else
+            echo "  ❌ DOCKER_HOST not configured"
+          fi
+
+          # VS Code integration
+          if grep -q "dev.containers.dockerPath" "$PODMAN_SH"; then
+            echo "  ✅ VS Code Dev Containers configured for Podman"
+          else
+            echo "  ❌ VS Code Dev Containers not configured"
+          fi
+
+          # Testcontainers support
+          if grep -q "TESTCONTAINERS" "$PODMAN_SH"; then
+            echo "  ✅ Testcontainers environment configured"
+          else
+            echo "  ❌ Testcontainers environment missing"
+          fi
+
+          # podman-env.zsh created
+          if grep -q "podman-env.zsh" "$PODMAN_SH"; then
+            echo "  ✅ podman-env.zsh shell config generated"
+          else
+            echo "  ❌ podman-env.zsh not generated"
+          fi
+
+          # launchd plist for auto-start
+          if grep -q "com.kodra.podman" "$PODMAN_SH"; then
+            echo "  ✅ launchd plist for auto-start included"
+          else
+            echo "  ❌ launchd plist missing"
+          fi
+
+          # podman-compose installed
+          if grep -q "podman-compose" "$PODMAN_SH"; then
+            echo "  ✅ podman-compose included"
+          else
+            echo "  ❌ podman-compose missing"
+          fi
+
+          echo ""
+
+      # ─────────────────────────────────────────────────────────────
+      # Verify boot.sh TTY handling
+      # ─────────────────────────────────────────────────────────────
+      - name: "📟 Verify boot.sh TTY handling"
+        if: always()
+        run: |
+          set +e
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  boot.sh TTY Handling Verification                 │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          BOOT_SH="$HOME/.kodra/boot.sh"
+
+          if [ -f "$BOOT_SH" ]; then
+            echo "  ✅ boot.sh exists"
+          else
+            echo "  ❌ boot.sh missing"
+            exit 0
+          fi
+
+          # Valid bash syntax
+          if bash -n "$BOOT_SH" 2>/dev/null; then
+            echo "  ✅ boot.sh syntax valid"
+          else
+            echo "  ❌ boot.sh has syntax errors"
+          fi
+
+          # /dev/tty redirect for Homebrew install
+          if grep -q "/dev/tty" "$BOOT_SH"; then
+            echo "  ✅ /dev/tty redirect for Homebrew (curl | bash support)"
+          else
+            echo "  ❌ Missing /dev/tty redirect — Homebrew will fail via pipe"
+          fi
+
+          # Fallback message for non-interactive
+          if grep -q "interactive terminal" "$BOOT_SH"; then
+            echo "  ✅ Fallback message when /dev/tty unavailable"
+          else
+            echo "  ❌ Missing fallback message"
+          fi
+
+          # Skips Homebrew if already installed
+          if grep -q "command -v brew" "$BOOT_SH"; then
+            echo "  ✅ Skips Homebrew install if already present"
+          else
+            echo "  ❌ Missing Homebrew presence check"
+          fi
+
+          echo ""
+
+      # ─────────────────────────────────────────────────────────────
+      # Verify shell config container awareness
+      # ─────────────────────────────────────────────────────────────
+      - name: "🔗 Verify shell config container awareness"
+        if: always()
+        run: |
+          set +e
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Shell Config Container Awareness                  │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          SHELL_CFG="$HOME/.kodra/install/terminal/shell-config.sh"
+
+          # Shell config sources podman-env.zsh when present
+          if grep -q "podman-env.zsh" "$SHELL_CFG" 2>/dev/null; then
+            echo "  ✅ shell-config.sh sources podman-env.zsh when present"
+          else
+            echo "  ❌ shell-config.sh does not source podman-env.zsh"
+          fi
+
+          # Verify generated shell.zsh exists (created during install)
+          if [ -f "$HOME/.config/kodra/shell.zsh" ]; then
+            echo "  ✅ shell.zsh generated during install"
+
+            # Check it contains podman-env sourcing logic
+            if grep -q "podman-env" "$HOME/.config/kodra/shell.zsh" 2>/dev/null; then
+              echo "  ✅ shell.zsh includes podman-env conditional sourcing"
+            else
+              echo "  ⚠️  shell.zsh does not include podman-env (Docker runtime selected)"
+            fi
+          else
+            echo "  ❌ shell.zsh not found"
+          fi
+
+          echo ""
 
       # ─────────────────────────────────────────────────────────────
       # Verify macOS desktop defaults were applied

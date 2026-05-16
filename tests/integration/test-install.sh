@@ -198,6 +198,110 @@ else
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Integration: Copilot CLI${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+if command -v copilot &>/dev/null; then
+    assert_pass "Copilot CLI cask installed ($(copilot --version 2>/dev/null | head -1 || echo 'ok'))"
+else
+    assert_fail "Copilot CLI cask not installed"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Integration: Container Runtime${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Docker CLI must always be installed
+if command -v docker &>/dev/null; then
+    assert_pass "Docker CLI installed ($(docker --version 2>/dev/null | head -1))"
+else
+    assert_fail "Docker CLI missing — should always be installed"
+fi
+
+# Verify container runtime selection support in install.sh
+if grep -q "KODRA_CONTAINER_RUNTIME" "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "KODRA_CONTAINER_RUNTIME env override in install.sh"
+else
+    assert_fail "KODRA_CONTAINER_RUNTIME env override missing"
+fi
+
+if grep -q "KODRA_SKIP_PROMPTS" "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "KODRA_SKIP_PROMPTS supported in install.sh"
+else
+    assert_fail "KODRA_SKIP_PROMPTS missing from install.sh"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Integration: boot.sh Safety${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+if grep -q '/dev/tty' "$ROOT_DIR/boot.sh" 2>/dev/null; then
+    assert_pass "boot.sh uses /dev/tty for Homebrew (curl | bash safe)"
+else
+    assert_fail "boot.sh missing /dev/tty redirect"
+fi
+
+if grep -q 'command -v brew' "$ROOT_DIR/boot.sh" 2>/dev/null; then
+    assert_pass "boot.sh skips Homebrew if already installed"
+else
+    assert_fail "boot.sh missing Homebrew presence check"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Integration: Podman Installer Structure${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PODMAN_SH="$ROOT_DIR/install/containers/podman.sh"
+if [[ -f "$PODMAN_SH" ]]; then
+    assert_pass "podman.sh exists"
+
+    if bash -n "$PODMAN_SH" 2>/dev/null; then
+        assert_pass "podman.sh syntax valid"
+    else
+        assert_fail "podman.sh has syntax errors"
+    fi
+
+    if grep -q 'krunkit' "$PODMAN_SH"; then
+        assert_pass "podman.sh includes krunkit (Apple Silicon)"
+    else
+        assert_fail "podman.sh missing krunkit dependency"
+    fi
+
+    if grep -q 'DOCKER_HOST' "$PODMAN_SH"; then
+        assert_pass "podman.sh configures DOCKER_HOST"
+    else
+        assert_fail "podman.sh missing DOCKER_HOST"
+    fi
+
+    if grep -q 'TESTCONTAINERS' "$PODMAN_SH"; then
+        assert_pass "podman.sh configures Testcontainers"
+    else
+        assert_fail "podman.sh missing Testcontainers config"
+    fi
+
+    if grep -q 'dev.containers.dockerPath' "$PODMAN_SH"; then
+        assert_pass "podman.sh configures VS Code"
+    else
+        assert_fail "podman.sh missing VS Code config"
+    fi
+
+    if grep -q 'podman-env.zsh' "$PODMAN_SH"; then
+        assert_pass "podman.sh generates podman-env.zsh"
+    else
+        assert_fail "podman.sh missing podman-env.zsh"
+    fi
+else
+    assert_fail "podman.sh not found"
+fi
+
+# Check shell-config.sh sources podman-env.zsh
+if grep -q 'podman-env.zsh' "$ROOT_DIR/install/terminal/shell-config.sh" 2>/dev/null; then
+    assert_pass "shell-config.sh sources podman-env.zsh when present"
+else
+    assert_fail "shell-config.sh does not source podman-env.zsh"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo -e "\n${C_CYAN}▶ Integration: State Tracking${C_RESET}\n"
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
