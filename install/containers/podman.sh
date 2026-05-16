@@ -5,9 +5,6 @@ source "$(dirname "${BASH_SOURCE[0]}")/../../lib/utils.sh"
 
 brew_install podman
 
-# krunkit is required for Podman machine on Apple Silicon (macOS virtualization backend)
-brew_install krunkit
-
 # Install podman-compose for docker-compose compatibility
 brew_install podman-compose
 

@@ -1,6 +1,28 @@
 # Kodra macOS — Roadmap
 
-## Current: v0.3.0 (CLI Parity & Uninstallers)
+## Current: v0.5.0 (Full Uninstall & Podman Integration)
+
+✅ Everything from v0.4.0 plus:
+✅ Full uninstall removes all apps, tools, and configs (48 packages)
+✅ Uninstall option (5) and Exit option (6) in install menu (now 6 options)
+✅ Podman environment integration (DOCKER_HOST, VS Code settings, Testcontainers)
+✅ krunkit for Podman Apple Silicon virtualization
+✅ Copilot CLI installed as standalone cask
+✅ Docker CLI always installed regardless of container runtime choice
+✅ Unit tests expanded to 313
+✅ E2E pipeline expanded with 8 new verification steps
+
+## v0.4.0 (Podman & Container Choice)
+
+✅ Everything from v0.3.0 plus:
+✅ Podman as alternative container runtime option alongside Docker (Colima)
+✅ Interactive container runtime selection during install (Docker or Podman)
+✅ 9 new CLI tools: jq, delta, direnv, neovim, httpie, shellcheck, tldr, act
+✅ Container security tools: trivy, dive
+✅ Red Hat ecosystem: OpenShift CLI (oc), Ansible
+✅ Tool count increased from 25+ to 40+
+
+## v0.3.0 (CLI Parity & Uninstallers)
 
 ✅ Everything from v0.2.0 plus:
 ✅ 12 missing uninstallers — every installer now has a matching uninstaller
@@ -37,7 +59,7 @@
 ✅ Install logging and error handling
 ✅ State tracking and uninstaller
 
-## Planned: v0.3.0
+## Planned: v0.6.0
 
 - [ ] `kodra doctor --fix` — auto-remediation mode
 - [ ] `gum` integration for prettier interactive menus

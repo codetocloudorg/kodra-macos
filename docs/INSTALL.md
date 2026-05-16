@@ -3,7 +3,7 @@
 ## Quick Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/codetocloudorg/kodra-macos/main/boot.sh | bash
+curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 ```
 
 This will:
@@ -14,7 +14,7 @@ This will:
 
 ## Requirements
 
-- **macOS 13+** (Ventura, Sonoma, or Sequoia)
+- **macOS 14+** (Sonoma or later)
 - **Apple Silicon** (M1, M2, M3, M4 or later)
 - **~5 GB** free disk space
 - **Internet connection**
@@ -26,10 +26,12 @@ The installer offers interactive profile selection:
 
 | Profile | What's Included |
 |---------|----------------|
-| **Full Install** (default) | Everything — all tools + desktop tweaks |
-| **Minimal** | Shell environment + CLI tools only |
-| **Developer** | Shell + CLI + Git tools + Containers |
-| **Cloud Engineer** | Everything except desktop customization |
+| **1. Full Install** (default) | Everything — all tools + desktop tweaks |
+| **2. Minimal** | Shell environment + CLI tools only |
+| **3. Developer** | Shell + CLI + Git tools + Containers |
+| **4. Cloud Engineer** | Everything except desktop customization |
+| **5. Uninstall Kodra** | Remove all Kodra tools, configs, and apps |
+| **6. Exit** | Quit without making changes |
 
 ### Non-Interactive Install
 
@@ -67,6 +69,10 @@ Azure CLI, Azure Developer CLI (azd), Bicep, Terraform, OpenTofu, PowerShell 7, 
 ### Containers
 Colima (Docker Desktop alternative), Docker CLI + Compose, lazydocker
 
+**OR** Podman + Podman Desktop + podman-compose (daemonless alternative)
+
+> During installation you choose either the **Docker** stack (Colima + Docker CLI + lazydocker) or the **Podman** stack (Podman + Podman Desktop + podman-compose). Docker CLI is always installed regardless of your choice. Both options are license-free.
+
 ### Development Tools
 mise (Node.js + Python version manager), VS Code (with extensions)
 
@@ -85,12 +91,13 @@ Dock auto-hide, Finder developer settings, keyboard repeat rate, trackpad tap-to
 | State file | `~/.local/state/kodra/state.json` |
 | Install log | `~/.config/kodra/install.log` |
 | Colima launchd | `~/Library/LaunchAgents/com.kodra.colima.plist` |
+| Podman launchd | `~/Library/LaunchAgents/com.kodra.podman.plist` |
 
 ## Post-Install
 
 1. **Restart your terminal** (or `source ~/.zshrc`)
 2. **Verify**: `kodra doctor`
-3. **Start Colima**: `colima start`
+3. **Start your container runtime**: `colima start` (Docker) or `podman machine start` (Podman)
 4. **Login to GitHub**: `gh auth login`
 5. **Login to Azure**: `az login`
 

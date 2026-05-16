@@ -4,7 +4,7 @@
 
 ### What is Kodra macOS?
 
-Kodra macOS is an opinionated, one-command developer environment for macOS Apple Silicon. It installs and configures 25+ development tools for cloud-native development with Azure, Kubernetes, and modern CLI workflows.
+Kodra macOS is an opinionated, one-command developer environment for macOS Apple Silicon. It installs and configures 40+ development tools for cloud-native development with Azure, Kubernetes, and modern CLI workflows.
 
 ### How is it different from the WSL variant?
 
@@ -24,31 +24,35 @@ Kodra macOS is designed for Apple Silicon (M1/M2/M3/M4). It may work on Intel Ma
 
 ### What macOS versions are supported?
 
-macOS 13 (Ventura) and later. We test on macOS 15 (Sequoia) in CI.
+macOS 14 (Sonoma) and later. We test on macOS 15 (Sequoia) in CI.
 
 ## Installation
 
 ### How do I install?
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/codetocloudorg/kodra-macos/main/boot.sh | bash
+curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 ```
 
 ### Can I install only specific tools?
 
-Yes. The installer offers 4 profiles:
+Yes. The installer offers 6 options:
 1. **Full Install** — all tools (default)
 2. **Minimal** — shell + CLI tools only
 3. **Developer** — shell + CLI + Git + Containers
 4. **Cloud Engineer** — everything except desktop tweaks
+5. **Uninstall Kodra** — remove all Kodra tools, configs, and apps
+6. **Exit** — quit without making changes
 
 ### How do I uninstall?
 
 ```bash
-~/.kodra/uninstall.sh
+bash ~/.kodra/uninstall.sh
 ```
 
-This removes symlinks, launchd agents, shell config entries, and the `~/.kodra` directory.
+Or select **option 5** from the install menu (`curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash`).
+
+The uninstaller now removes **everything**: all Homebrew formulae (41), all casks (6 apps), PowerShell.app, gh-copilot extension, config files, VS Code Kodra settings, shell config, launchd plists, Podman/Colima data, and all Kodra directories. Only Homebrew itself is preserved.
 
 ### Installation failed — what do I do?
 

@@ -261,10 +261,10 @@ if [[ -f "$PODMAN_SH" ]]; then
         assert_fail "podman.sh has syntax errors"
     fi
 
-    if grep -q 'krunkit' "$PODMAN_SH"; then
-        assert_pass "podman.sh includes krunkit (Apple Silicon)"
+    if grep -q 'podman machine init' "$PODMAN_SH"; then
+        assert_pass "podman.sh includes machine init"
     else
-        assert_fail "podman.sh missing krunkit dependency"
+        assert_fail "podman.sh missing machine init"
     fi
 
     if grep -q 'DOCKER_HOST' "$PODMAN_SH"; then

@@ -5,6 +5,26 @@ All notable changes to Kodra macOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-15
+
+### Added
+- Full uninstall removes all apps, tools, and configs (48 packages total)
+- Uninstall option (5) and Exit option (6) in install menu (now 6 options)
+- Podman environment integration (DOCKER_HOST, VS Code settings, Testcontainers)
+- krunkit for Podman Apple Silicon virtualization
+- Copilot CLI installed as standalone cask
+
+### Fixed
+- Homebrew sudo prompt failure when running via `curl | bash` (piped stdin)
+- `log_debug` command not found in subshell installers
+- Box formatting alignment with emoji widths
+
+### Changed
+- Docker CLI always installed regardless of container runtime choice
+- Uninstall now removes everything (was partial before)
+- Unit tests expanded to 313 (from ~270)
+- E2E pipeline expanded with 8 new verification steps
+
 ## [0.4.0] - 2026-05-15
 
 ### Added
@@ -93,6 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E workflow mimicking real user install on Apple Silicon runner
 - Clean uninstaller (`uninstall.sh`)
 
+[0.5.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.5.0
 [0.4.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.4.0
 [0.3.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.3.0
 [0.2.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.2.0

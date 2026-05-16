@@ -549,11 +549,11 @@ jobs:
             echo "  ❌ podman.sh has syntax errors"
           fi
 
-          # krunkit dependency (Apple Silicon requirement)
-          if grep -q "krunkit" "$PODMAN_SH"; then
-            echo "  ✅ krunkit dependency included (Apple Silicon)"
+          # Apple Hypervisor machine init
+          if grep -q "podman machine init" "$PODMAN_SH"; then
+            echo "  ✅ Podman machine init configured"
           else
-            echo "  ❌ krunkit missing — Podman will fail on Apple Silicon"
+            echo "  ❌ Podman machine init missing"
           fi
 
           # DOCKER_HOST environment config
@@ -766,6 +766,7 @@ jobs:
           check_uninstall "Homebrew formulae"          "KODRA_BREW_FORMULAE"
           check_uninstall "Homebrew casks"              "KODRA_BREW_CASKS"
           check_uninstall "PowerShell .pkg"             "powershell"
+          check_uninstall "PowerShell.app"              "PowerShell.app"
           check_uninstall "gh-copilot extension"        "gh extension remove"
           check_uninstall "Colima stop"                 "colima stop"
           check_uninstall "Podman machine stop"         "podman machine stop"
@@ -775,10 +776,41 @@ jobs:
           check_uninstall "Shell config cleanup"        "zshrc"
           check_uninstall "Starship config"             "starship.toml"
           check_uninstall "bat config"                  "bat/config"
+          check_uninstall "ghostty config"              "ghostty/config"
           check_uninstall "Podman data dir"             ".local/share/containers"
           check_uninstall "Colima data dir"             ".colima"
+          check_uninstall "Docker config dir"           ".docker"
           check_uninstall "Confirmation prompt"         "read -rp"
+          check_uninstall "TTY redirect"                "/dev/tty"
           check_uninstall "Brew cleanup"                "brew cleanup"
+          check_uninstall "Brew autoremove"             "brew autoremove"
+          check_uninstall "--ignore-dependencies"       "ignore-dependencies"
+          check_uninstall "--force flag"                 "--force"
+          check_uninstall "/Applications fallback"      "/Applications/"
+          check_uninstall "VS Code.app fallback"        "Visual Studio Code"
+          check_uninstall "CLI symlink removal"         "local/bin/kodra"
+          check_uninstall "podman-env.zsh cleanup"      "podman-env.zsh"
+
+          echo ""
+          echo "  Formula/cask parity check:"
+
+          # Verify every expected formula is in the uninstall script
+          MISSING=0
+          for f in bat btop eza fzf ripgrep zoxide yq jq fd fastfetch lazygit gh git-delta direnv httpie neovim shellcheck tldr act starship mise azure-cli azd opentofu kubectl helm k9s colima docker docker-compose lazydocker podman podman-compose; do
+            if ! grep -q "$f" "$UNINSTALL_SH" 2>/dev/null; then
+              echo "  ❌ Formula '$f' missing from uninstall"
+              MISSING=1
+            fi
+          done
+          for c in ghostty copilot-cli visual-studio-code podman-desktop font-jetbrains-mono-nerd-font font-meslo-lg-nerd-font; do
+            if ! grep -q "$c" "$UNINSTALL_SH" 2>/dev/null; then
+              echo "  ❌ Cask '$c' missing from uninstall"
+              MISSING=1
+            fi
+          done
+          if [ "$MISSING" -eq 0 ]; then
+            echo "  ✅ All formulae and casks covered in uninstall"
+          fi
 
           echo ""
 

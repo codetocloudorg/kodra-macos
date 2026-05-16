@@ -12,13 +12,13 @@
 ### 🍎 macOS Edition • Apple Silicon
 
 **One-command Azure developer environment for macOS.**<br>
-30+ cloud-native tools, Homebrew + native `.pkg` installs, zero config.
+40+ cloud-native tools, Homebrew + native `.pkg` installs, zero config.
 
 [![macOS Lint & Unit Tests](https://github.com/codetocloudorg/kodra-macos/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/ci.yml)
 [![macOS Install (Apple Silicon E2E)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon-black?logo=apple)](https://github.com/codetocloudorg/kodra-macos)
-[![Version](https://img.shields.io/badge/version-0.4.0-purple)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.0-purple)](CHANGELOG.md)
 
 </div>
 
@@ -133,7 +133,14 @@ kodra cleanup       # Clean caches
 kodra defaults      # Re-apply macOS settings
 kodra shortcuts     # Show all aliases
 kodra fetch         # System info (fastfetch)
+kodra uninstall     # Remove all Kodra tools and configs
 ```
+
+To uninstall Kodra completely:
+```bash
+bash ~/.kodra/uninstall.sh
+```
+Or select **option 5** from the install menu.
 
 ---
 
@@ -175,12 +182,12 @@ kodra-macos/
 │   ├── dev-tools/          # mise, vscode
 │   ├── terminal/           # ghostty, starship, nerd-fonts, shell-config
 │   └── desktop/            # dock, finder, system defaults
-├── uninstall/              # Per-tool uninstallers (15 scripts)
+├── uninstall/              # Per-tool uninstallers
 ├── migrations/             # Version migration scripts
 ├── configs/
 │   └── completions/        # zsh + bash tab completions
 ├── tests/
-│   ├── unit/               # Fast structural tests (139 tests)
+│   ├── unit/               # Fast structural tests (313 tests)
 │   └── integration/        # Real install tests (CI)
 ├── llms.txt                # LLM-friendly summary
 ├── llms-full.txt           # Full LLM documentation
@@ -198,7 +205,7 @@ kodra-macos/
 | OS | Ubuntu 24.04 | WSL2 Ubuntu | macOS 14+ |
 | Package Manager | apt | apt | Homebrew + `.pkg` |
 | Desktop | GNOME | Windows Terminal | Native macOS |
-| Docker | Docker CE | Docker CE (no Desktop) | Colima (no Desktop) |
+| Docker | Docker CE | Docker CE (no Desktop) | Colima or Podman (no Desktop) |
 | Terminal | Ghostty | Oh My Posh | Ghostty + Starship |
 | Architecture | x86_64/arm64 | x86_64 | Apple Silicon |
 | CI Runners | ubuntu-24.04 | windows-2022 | macos-15 |

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Kodra macOS is a one-command Apple Silicon developer environment. It transforms a fresh macOS install into a fully-configured cloud-native development workstation with 25+ tools — zero config required. Built and maintained by [Code To Cloud Inc.](https://www.codetocloud.io)
+Kodra macOS is a one-command Apple Silicon developer environment. It transforms a fresh macOS install into a fully-configured cloud-native development workstation with 40+ tools — zero config required. Built and maintained by [Code To Cloud Inc.](https://www.codetocloud.io)
 
 **Website**: [kodra.macos.codetocloud.io](https://kodra.macos.codetocloud.io)
 

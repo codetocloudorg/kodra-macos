@@ -572,11 +572,11 @@ fi
 echo -e "\n${C_CYAN}▶ Test Suite: Podman Installer${C_RESET}\n"
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-# Verify podman.sh installs krunkit (required on Apple Silicon)
-if grep -q 'krunkit' "$ROOT_DIR/install/containers/podman.sh" 2>/dev/null; then
-    assert_pass "podman: krunkit dependency included"
+# Verify podman.sh uses Apple Hypervisor (no krunkit needed on modern Podman)
+if grep -q 'podman machine init' "$ROOT_DIR/install/containers/podman.sh" 2>/dev/null; then
+    assert_pass "podman: machine init configured"
 else
-    assert_fail "podman: krunkit dependency missing (Apple Silicon will fail)"
+    assert_fail "podman: machine init missing"
 fi
 
 # Verify podman.sh sets up DOCKER_HOST environment
@@ -775,6 +775,111 @@ if grep -q 'brew cleanup' "$UNINSTALL_SH" 2>/dev/null; then
     assert_pass "uninstall: runs brew cleanup"
 else
     assert_fail "uninstall: does not run brew cleanup"
+fi
+
+# Verify it uses --ignore-dependencies for stubborn formulae
+if grep -q '\-\-ignore-dependencies' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: uses --ignore-dependencies for formulae"
+else
+    assert_fail "uninstall: missing --ignore-dependencies"
+fi
+
+# Verify it uses --force for cask removal
+if grep -q '\-\-force' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: uses --force for stubborn packages"
+else
+    assert_fail "uninstall: missing --force flag"
+fi
+
+# Verify fallback app removal from /Applications
+if grep -q '/Applications/' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: fallback /Applications removal"
+else
+    assert_fail "uninstall: no /Applications fallback"
+fi
+
+# Verify PowerShell.app removal
+if grep -q 'PowerShell.app' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes PowerShell.app"
+else
+    assert_fail "uninstall: does not remove PowerShell.app"
+fi
+
+# Verify Visual Studio Code.app fallback removal
+if grep -q 'Visual Studio Code' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes VS Code.app fallback"
+else
+    assert_fail "uninstall: no VS Code.app fallback"
+fi
+
+# Verify brew autoremove for orphaned deps
+if grep -q 'brew autoremove' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: runs brew autoremove"
+else
+    assert_fail "uninstall: missing brew autoremove"
+fi
+
+# Verify TTY guard for non-interactive terminals
+if grep -q '/dev/tty' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: reads confirmation from /dev/tty"
+else
+    assert_fail "uninstall: missing /dev/tty for confirmation"
+fi
+
+# Verify podman-env.zsh cleanup
+if grep -q 'podman-env.zsh' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes podman-env.zsh config"
+else
+    assert_fail "uninstall: missing podman-env.zsh cleanup"
+fi
+
+# Verify ghostty config removal
+if grep -q 'ghostty/config' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes ghostty config"
+else
+    assert_fail "uninstall: missing ghostty config removal"
+fi
+
+# Verify it removes Kodra CLI symlink
+if grep -q 'local/bin/kodra' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes CLI symlink"
+else
+    assert_fail "uninstall: does not remove CLI symlink"
+fi
+
+# Verify it removes .docker config dir
+if grep -q '\.docker' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes .docker config"
+else
+    assert_fail "uninstall: does not remove .docker config"
+fi
+
+# Verify every formula in install.sh is also in uninstall.sh
+INSTALL_FORMULAE_MISSING=0
+for f in bat btop eza fzf ripgrep zoxide yq jq fd fastfetch lazygit gh git-delta direnv httpie neovim shellcheck tldr act starship mise azure-cli azd opentofu kubectl helm k9s colima docker docker-compose lazydocker podman podman-compose; do
+    if ! grep -q "$f" "$UNINSTALL_SH" 2>/dev/null; then
+        INSTALL_FORMULAE_MISSING=1
+        break
+    fi
+done
+if [[ "$INSTALL_FORMULAE_MISSING" -eq 0 ]]; then
+    assert_pass "uninstall: all installed formulae covered"
+else
+    assert_fail "uninstall: formula '$f' missing from uninstall"
+fi
+
+# Verify all casks in install are in uninstall
+INSTALL_CASKS_MISSING=0
+for c in ghostty copilot-cli visual-studio-code podman-desktop font-jetbrains-mono-nerd-font font-meslo-lg-nerd-font; do
+    if ! grep -q "$c" "$UNINSTALL_SH" 2>/dev/null; then
+        INSTALL_CASKS_MISSING=1
+        break
+    fi
+done
+if [[ "$INSTALL_CASKS_MISSING" -eq 0 ]]; then
+    assert_pass "uninstall: all installed casks covered"
+else
+    assert_fail "uninstall: cask '$c' missing from uninstall"
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

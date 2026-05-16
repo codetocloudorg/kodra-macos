@@ -24,7 +24,7 @@ KODRA_BREW_FORMULAE=(
     azure-cli azd opentofu kubectl helm k9s ansible openshift-cli
     colima docker docker-compose docker-credential-helper
     lazydocker trivy dive
-    podman podman-compose podman-docker krunkit
+    podman podman-compose podman-docker
     "hashicorp/tap/terraform"
 )
 

@@ -4,9 +4,9 @@
 
 ## Overview
 
-Kodra macOS is a one-command Azure developer environment for macOS on Apple Silicon. It installs and configures 30+ cloud-native development tools with zero manual configuration. Built by [Code To Cloud Inc.](https://www.codetocloud.io) in Calgary, Alberta, Canada.
+Kodra macOS is a one-command Azure developer environment for macOS on Apple Silicon. It installs and configures 40+ cloud-native development tools with zero manual configuration. Built by [Code To Cloud Inc.](https://www.codetocloud.io) in Calgary, Alberta, Canada.
 
-- **Version**: 0.4.0
+- **Version**: 0.5.0
 - **Platform**: macOS 14 (Sonoma) or later, Apple Silicon (M1/M2/M3/M4)
 - **License**: MIT
 - **Website**: https://kodra.macos.codetocloud.io
@@ -21,7 +21,7 @@ curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 This clones the repo to `~/.kodra` and runs `install.sh`, which:
 1. Checks macOS version and Apple Silicon architecture
 2. Installs/updates Homebrew
-3. Presents an interactive 4-profile install menu (Full / Cloud + Containers / CLI Only / Custom)
+3. Presents an interactive 6-option install menu (Full / Minimal / Developer / Cloud Engineer / Uninstall Kodra / Exit)
 4. Installs all selected tools via Homebrew formulae, casks, and native .pkg
 5. Configures shell (zsh), terminal (Ghostty), prompt (Starship), and macOS defaults
 6. Logs everything to `~/.local/state/kodra/install.log`
@@ -97,7 +97,7 @@ Developer-optimized system settings via `defaults write`:
 ## CLI Commands
 
 ```bash
-kodra doctor          # Check 27 tools across 4 categories
+kodra doctor          # Check 40+ tools across 4 categories
 kodra doctor --fix    # Auto-reinstall missing tools
 kodra update          # brew update && brew upgrade
 kodra cleanup         # brew cleanup + cache purge
@@ -141,7 +141,7 @@ kodra-macos/
 │   ├── dev-tools/          # 2 dev tool installers
 │   ├── terminal/           # 4 terminal/shell installers
 │   └── desktop/            # 3 macOS defaults scripts
-├── uninstall/              # 15 per-tool uninstallers
+├── uninstall/              # Per-tool uninstallers + full uninstall script
 ├── migrations/             # Version migration scripts
 ├── configs/
 │   ├── btop.conf           # btop configuration
@@ -150,7 +150,7 @@ kodra-macos/
 │   └── completions/        # zsh + bash completions for kodra
 ├── packages/               # Package lists (cli-tools, core, cloud, etc.)
 ├── tests/
-│   ├── unit/               # 139 structural tests
+│   ├── unit/               # 313 structural tests
 │   └── integration/        # Full install E2E tests
 ├── docs/                   # FAQ, troubleshooting, cheatsheet, roadmap
 └── .github/workflows/
@@ -176,7 +176,7 @@ kodra-macos/
 | OS | Ubuntu 24.04 | WSL2 Ubuntu | macOS 14+ |
 | Package Manager | apt | apt | Homebrew + .pkg |
 | Desktop | GNOME | Windows Terminal | Native macOS |
-| Docker | Docker CE | Docker CE | Colima |
+| Docker | Docker CE | Docker CE | Colima or Podman |
 | Terminal | Ghostty | Oh My Posh | Ghostty + Starship |
 | Architecture | x86_64/arm64 | x86_64 | Apple Silicon |
 | Shell | bash | bash | zsh |
@@ -188,7 +188,9 @@ kodra-macos/
 bash ~/.kodra/uninstall.sh
 ```
 
-Or granular per-tool removal:
+Or select **option 5** from the install menu. The uninstaller removes **everything**: all Homebrew formulae (41), all casks (6 apps), PowerShell.app, gh-copilot extension, config files, VS Code Kodra settings, shell config, launchd plists, Podman/Colima data, and all Kodra directories. Only Homebrew itself is preserved.
+
+For granular per-tool removal:
 ```bash
 bash ~/.kodra/uninstall/azure-cli.sh
 bash ~/.kodra/uninstall/colima.sh

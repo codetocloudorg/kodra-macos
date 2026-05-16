@@ -3,55 +3,44 @@
 ## Quick Uninstall
 
 ```bash
-~/.kodra/uninstall.sh
+bash ~/.kodra/uninstall.sh
+```
+
+Or select **option 5** from the install menu:
+```bash
+curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 ```
 
 ## What Gets Removed
 
-The uninstaller removes:
+The uninstaller removes **everything** Kodra installed:
 
-1. **Kodra CLI symlink** — `~/.local/bin/kodra`
-2. **Colima launchd agent** — `~/Library/LaunchAgents/com.kodra.colima.plist`
-3. **Shell config** — Kodra source line from `~/.zshrc`
-4. **Kodra config** — `~/.config/kodra/`
-5. **Kodra state** — `~/.local/state/kodra/`
-6. **Kodra directory** — `~/.kodra/`
+1. **Homebrew formulae (41)** — bat, btop, eza, fd, fzf, ripgrep, yq, zoxide, lazygit, gh, jq, delta, direnv, neovim, httpie, shellcheck, tldr, act, azure-cli, azd, terraform, opentofu, kubectl, helm, k9s, colima, docker, docker-compose, lazydocker, podman, podman-compose, podman-docker, trivy, dive, mise, starship, fastfetch, openshift-cli, ansible, krunkit, and more
+2. **Homebrew casks (6)** — Ghostty, VS Code, Podman Desktop, Nerd Fonts, GitHub Copilot CLI, and others
+3. **PowerShell.app** — `/usr/local/microsoft/powershell` and `/usr/local/bin/pwsh`
+4. **gh-copilot extension** — GitHub Copilot CLI extension
+5. **Config files** — `~/.config/kodra/`, `~/.config/starship.toml`, `~/.config/ghostty/`
+6. **VS Code Kodra settings** — Kodra-managed VS Code configuration
+7. **Shell config** — Kodra source line from `~/.zshrc`
+8. **launchd plists** — `com.kodra.colima.plist`, `com.kodra.podman.plist`
+9. **Container data** — Colima VMs and Podman machines
+10. **Kodra state** — `~/.local/state/kodra/`
+11. **Kodra directory** — `~/.kodra/`
+12. **Kodra CLI symlink** — `~/.local/bin/kodra`
 
 ## What Gets Preserved
 
 The uninstaller does **NOT** remove:
 
-- **Homebrew** — may be used by other tools
-- **Homebrew-installed packages** — bat, fzf, ripgrep, etc. remain installed
-- **Ghostty** — remains installed as a cask
-- **VS Code** — remains installed
-- **Colima/Docker** — remain installed (only the auto-start plist is removed)
-- **Starship config** — `~/.config/starship.toml` remains
-- **Ghostty config** — `~/.config/ghostty/config` remains
-- **Nerd Fonts** — remain installed
+- **Homebrew itself** — may be used by other tools (see below to remove)
+- **Any non-Kodra tools** — tools you installed separately are untouched
 
-## Complete Cleanup
+### Removing Homebrew
 
-To remove everything including Homebrew packages:
+If you want to remove Homebrew entirely after uninstalling Kodra:
 
 ```bash
-# 1. Run the uninstaller
-~/.kodra/uninstall.sh
-
-# 2. Remove Homebrew packages installed by Kodra
-brew uninstall bat btop eza fastfetch fd fzf ripgrep yq zoxide \
-  lazygit gh azure-cli azd terraform opentofu kubectl helm k9s \
-  colima docker docker-compose lazydocker mise starship 2>/dev/null
-
-# 3. Remove Homebrew casks
-brew uninstall --cask ghostty visual-studio-code \
-  font-jetbrains-mono-nerd-font 2>/dev/null
-
-# 4. Remove remaining configs
-rm -rf ~/.config/ghostty ~/.config/starship.toml
-
-# 5. Clean Homebrew cache
-brew cleanup --prune=all
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
 ```
 
 ## Removing Individual Tools

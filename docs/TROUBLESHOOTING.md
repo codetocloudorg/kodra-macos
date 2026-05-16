@@ -221,7 +221,7 @@ cat ~/.local/state/kodra/state.json | python3 -m json.tool
 rm -rf ~/.config/kodra ~/.local/state/kodra
 
 # Reinstall
-curl -fsSL https://raw.githubusercontent.com/codetocloudorg/kodra-macos/main/boot.sh | bash
+curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 ```
 
 ### Getting help

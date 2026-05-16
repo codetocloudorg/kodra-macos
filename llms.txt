@@ -29,7 +29,7 @@ curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 
 - `kodra doctor` — Check system health and tool status
 - `kodra doctor --fix` — Auto-reinstall missing tools
-- `kodra update` — Update all 30+ installed tools
+- `kodra update` — Update all 40+ installed tools
 - `kodra repair` — Interactive repair menu
 - `kodra repair --all` — Repair everything automatically
 - `kodra backup` — Backup/restore dotfiles and configs
@@ -52,5 +52,5 @@ curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 
 - License: MIT
 - Platforms: macOS 14+ (Sonoma or later), Apple Silicon (M1/M2/M3/M4)
-- Version: 0.4.0
+- Version: 0.5.0
 - Developed by: Code To Cloud Inc. (Calgary, Alberta, Canada)
