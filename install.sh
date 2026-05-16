@@ -151,20 +151,30 @@ INSTALL_KUBERNETES=true
 INSTALL_DESKTOP=true
 
 # Container runtime: "docker" (Colima + Docker CLI) or "podman" (Podman + Podman Desktop)
-CONTAINER_RUNTIME="docker"
+CONTAINER_RUNTIME="${KODRA_CONTAINER_RUNTIME:-docker}"
+
+# Determine if we can prompt the user (interactive terminal)
+KODRA_CAN_PROMPT=false
+if [ -z "$KODRA_SKIP_PROMPTS" ]; then
+    if [ -t 0 ]; then
+        KODRA_CAN_PROMPT=true
+    elif [ -e /dev/tty ]; then
+        KODRA_CAN_PROMPT=true
+    fi
+fi
 
 # Check if interactive
-if [ -t 0 ] && [ -z "$KODRA_SKIP_PROMPTS" ]; then
+if [ "$KODRA_CAN_PROMPT" = "true" ]; then
     echo -e "    Choose what to install:"
     echo ""
-    echo -e "    \033[0;36m1)\033[0m Full Install (recommended) - all tools"
-    echo -e "    \033[0;36m2)\033[0m Minimal - shell + CLI tools only"
-    echo -e "    \033[0;36m3)\033[0m Developer - shell + CLI + Git + Containers"
-    echo -e "    \033[0;36m4)\033[0m Cloud Engineer - everything except Desktop tweaks"
+    echo -e "    \033[0;36m1)\033[0m Full Install (recommended) — all tools"
+    echo -e "    \033[0;36m2)\033[0m Minimal — shell + CLI tools only"
+    echo -e "    \033[0;36m3)\033[0m Developer — shell + CLI + Git + Containers"
+    echo -e "    \033[0;36m4)\033[0m Cloud Engineer — everything except Desktop tweaks"
     echo ""
 
     printf "    Choose an option [1-4] (default: 1): "
-    read -n 1 -r REPLY
+    read -n 1 -r REPLY < /dev/tty
     echo
     echo ""
 
@@ -192,7 +202,7 @@ else
 fi
 
 # Container runtime selection (only if containers are being installed)
-if [ "$INSTALL_CONTAINERS" = "true" ] && [ -t 0 ] && [ -z "$KODRA_SKIP_PROMPTS" ]; then
+if [ "$INSTALL_CONTAINERS" = "true" ] && [ "$KODRA_CAN_PROMPT" = "true" ]; then
     echo -e "    Choose container runtime:"
     echo ""
     echo -e "    \033[0;36m1)\033[0m Docker (Colima + Docker CLI) — lightweight, no Docker Desktop license"
@@ -200,7 +210,7 @@ if [ "$INSTALL_CONTAINERS" = "true" ] && [ -t 0 ] && [ -z "$KODRA_SKIP_PROMPTS" 
     echo ""
 
     printf "    Choose an option [1-2] (default: 1): "
-    read -n 1 -r RUNTIME_REPLY
+    read -n 1 -r RUNTIME_REPLY < /dev/tty
     echo
     echo ""
 
@@ -383,51 +393,50 @@ cp "$KODRA_LOG_FILE" "$PERMANENT_LOG" 2>/dev/null || true
 # Show debug failure summary
 if [ "$KODRA_DEBUG" = "true" ] && [ -n "$KODRA_FAILED_INSTALLS" ]; then
     echo ""
-    echo -e "    \033[0;33m╔════════════════════════════════════════════════════════════════╗\033[0m"
-    echo -e "    \033[0;33m║\033[0m  DEBUG: INSTALLATION SUMMARY                                   \033[0;33m║\033[0m"
-    echo -e "    \033[0;33m╠════════════════════════════════════════════════════════════════╣\033[0m"
-    echo -e "    \033[0;33m║\033[0m  Attempted: ${KODRA_INSTALL_COUNT:-0} installers                                     \033[0;33m║\033[0m"
-    echo -e "    \033[0;33m║\033[0m  Failed: ${KODRA_FAIL_COUNT:-0} installers                                        \033[0;33m║\033[0m"
-    echo -e "    \033[0;33m╠════════════════════════════════════════════════════════════════╣\033[0m"
+    echo -e "    \033[0;33m┌────────────────────────────────────────────────────────┐\033[0m"
+    echo -e "    \033[0;33m│\033[0m  DEBUG: INSTALLATION SUMMARY                             \033[0;33m│\033[0m"
+    echo -e "    \033[0;33m├────────────────────────────────────────────────────────┤\033[0m"
+    echo -e "    \033[0;33m│\033[0m  Attempted: ${KODRA_INSTALL_COUNT:-0} installers                             \033[0;33m│\033[0m"
+    echo -e "    \033[0;33m│\033[0m  Failed:    ${KODRA_FAIL_COUNT:-0} installers                             \033[0;33m│\033[0m"
+    echo -e "    \033[0;33m├────────────────────────────────────────────────────────┤\033[0m"
     echo -e "$KODRA_FAILED_INSTALLS" | while read -r line; do
-        [ -n "$line" ] && echo -e "    \033[0;33m║\033[0m  \033[0;31m✖\033[0m $line"
+        [ -n "$line" ] && echo -e "    \033[0;33m│\033[0m  \033[0;31m✖\033[0m $line"
     done
-    echo -e "    \033[0;33m╚════════════════════════════════════════════════════════════════╝\033[0m"
+    echo -e "    \033[0;33m└────────────────────────────────────────────────────────┘\033[0m"
 fi
 
 # Completion message
 echo ""
-echo -e "\033[38;5;135m    ┌──────────────────────────────────────────────────┐\033[0m"
-echo -e "\033[38;5;141m    │  ✅ Kodra macOS installed successfully!           │\033[0m"
-echo -e "\033[38;5;147m    │     Completed in ${KODRA_MINUTES}m ${KODRA_SECONDS}s                             │\033[0m"
-echo -e "\033[38;5;87m    └──────────────────────────────────────────────────┘\033[0m"
+echo -e "    \033[38;5;135m┌────────────────────────────────────────────────┐\033[0m"
+echo -e "    \033[38;5;141m│\033[0m  ✅ Kodra macOS installed successfully!          \033[38;5;141m│\033[0m"
+echo -e "    \033[38;5;147m│\033[0m     Completed in ${KODRA_MINUTES}m ${KODRA_SECONDS}s                            \033[38;5;147m│\033[0m"
+echo -e "    \033[38;5;87m└────────────────────────────────────────────────┘\033[0m"
 echo ""
 
 log_info "Log saved: ~/.config/kodra/install.log"
 
 # Next steps
 echo ""
-echo -e "╔══════════════════════════════════════════════════════════════════════════════╗"
-echo -e "║                           \033[0;32mNEXT STEPS\033[0m                                       ║"
-echo -e "╠══════════════════════════════════════════════════════════════════════════════╣"
-echo -e "║                                                                              ║"
-echo -e "║  \033[0;36m1. Restart your terminal\033[0m (close and reopen)                                ║"
-echo -e "║     Or run: \033[1;37msource ~/.zshrc\033[0m                                                ║"
-echo -e "║                                                                              ║"
-echo -e "║  \033[0;36m2. Verify everything\033[0m                                                       ║"
-echo -e "║     Run: \033[1;37mkodra doctor\033[0m                                                       ║"
-echo -e "║                                                                              ║"
+echo -e "    ┌────────────────────────────────────────────────────────────┐"
+echo -e "    │                     \033[1;32mNEXT STEPS\033[0m                              │"
+echo -e "    ├────────────────────────────────────────────────────────────┤"
+echo -e "    │                                                            │"
+echo -e "    │  \033[0;36m1.\033[0m Restart your terminal (or run: \033[1;37msource ~/.zshrc\033[0m)       │"
+echo -e "    │                                                            │"
+echo -e "    │  \033[0;36m2.\033[0m Verify installation                                   │"
+echo -e "    │     Run: \033[1;37mkodra doctor\033[0m                                      │"
+echo -e "    │                                                            │"
 if [ "${CONTAINER_RUNTIME:-docker}" = "podman" ]; then
-echo -e "║  \033[0;36m3. Start Podman\033[0m (container runtime)                                        ║"
-echo -e "║     Run: \033[1;37mpodman machine start\033[0m                                                ║"
+echo -e "    │  \033[0;36m3.\033[0m Start Podman (container runtime)                      │"
+echo -e "    │     Run: \033[1;37mpodman machine start\033[0m                              │"
 else
-echo -e "║  \033[0;36m3. Start Colima\033[0m (container runtime)                                        ║"
-echo -e "║     Run: \033[1;37mcolima start\033[0m                                                       ║"
+echo -e "    │  \033[0;36m3.\033[0m Start Colima (container runtime)                      │"
+echo -e "    │     Run: \033[1;37mcolima start\033[0m                                      │"
 fi
-echo -e "║                                                                              ║"
-echo -e "║  \033[0;36m4. Configure your accounts\033[0m                                                 ║"
-echo -e "║     Run: \033[1;37mgh auth login\033[0m     (GitHub)                                         ║"
-echo -e "║     Run: \033[1;37maz login\033[0m          (Azure)                                          ║"
-echo -e "║                                                                              ║"
-echo -e "╚══════════════════════════════════════════════════════════════════════════════╝"
+echo -e "    │                                                            │"
+echo -e "    │  \033[0;36m4.\033[0m Configure your accounts                               │"
+echo -e "    │     \033[1;37mgh auth login\033[0m     (GitHub)                             │"
+echo -e "    │     \033[1;37maz login\033[0m          (Azure)                              │"
+echo -e "    │                                                            │"
+echo -e "    └────────────────────────────────────────────────────────────┘"
 echo ""
