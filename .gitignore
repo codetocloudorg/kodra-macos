@@ -23,3 +23,8 @@ logs/
 
 # Build artifacts
 dist/
+
+demo-install.sh
+demo-install.tape
+kodra-install-demo.gif
+kodra-install-demo.mp4
