@@ -268,6 +268,7 @@ if [ "$INSTALL_SHELL" = "true" ]; then
     log_section "Shell Environment"
 
     run_installer "$INSTALL_DIR/terminal/ghostty.sh"
+    run_installer "$INSTALL_DIR/terminal/tmux.sh"
     run_installer "$INSTALL_DIR/terminal/nerd-fonts.sh"
     run_installer "$INSTALL_DIR/terminal/starship.sh"
     run_installer "$INSTALL_DIR/terminal/shell-config.sh"

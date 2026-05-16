@@ -6,7 +6,7 @@
 
 Kodra macOS is a one-command Azure developer environment for macOS on Apple Silicon. It installs and configures 40+ cloud-native development tools with zero manual configuration. Built by [Code To Cloud Inc.](https://www.codetocloud.io) in Calgary, Alberta, Canada.
 
-- **Version**: 0.5.0
+- **Version**: 0.6.0
 - **Platform**: macOS 14 (Sonoma) or later, Apple Silicon (M1/M2/M3/M4)
 - **License**: MIT
 - **Website**: https://kodra.macos.codetocloud.io
@@ -23,7 +23,7 @@ This clones the repo to `~/.kodra` and runs `install.sh`, which:
 2. Installs/updates Homebrew
 3. Presents an interactive 6-option install menu (Full / Minimal / Developer / Cloud Engineer / Uninstall Kodra / Exit)
 4. Installs all selected tools via Homebrew formulae, casks, and native .pkg
-5. Configures shell (zsh), terminal (Ghostty), prompt (Starship), and macOS defaults
+5. Configures shell (zsh), terminal (Ghostty + tmux), prompt (Starship), and macOS defaults
 6. Logs everything to `~/.local/state/kodra/install.log`
 
 ## Tools Installed
@@ -76,8 +76,9 @@ This clones the repo to `~/.kodra` and runs `install.sh`, which:
 
 > During install, users choose either the Docker stack (Colima + Docker CLI + lazydocker) or the Podman stack (Podman + Podman Desktop + podman-compose). Both are license-free.
 
-### Terminal & Shell (4)
-- **Ghostty** — GPU-accelerated terminal with Tokyo Night theme (`brew install --cask ghostty`)
+### Terminal & Shell (5)
+- **Ghostty** — GPU-accelerated terminal with Cyberpunk theme, quick terminal, split resize (`brew install --cask ghostty`)
+- **tmux** — Terminal multiplexer with Kodra workspace menu, Ctrl+a prefix (`brew install tmux`)
 - **Starship** — Cross-shell prompt with Kodra config (`brew install starship`)
 - **Nerd Fonts** — JetBrainsMono + Meslo fonts (`brew install --cask font-jetbrains-mono-nerd-font`)
 - **Shell config** — zsh aliases, completions, FZF integration at `~/.config/kodra/shell.zsh`
@@ -139,7 +140,7 @@ kodra-macos/
 │   ├── cloud/              # 11 cloud tool installers
 │   ├── containers/         # 6 container tool installers (docker or podman + trivy, dive)
 │   ├── dev-tools/          # 2 dev tool installers
-│   ├── terminal/           # 4 terminal/shell installers
+│   ├── terminal/           # 5 terminal/shell installers
 │   └── desktop/            # 3 macOS defaults scripts
 ├── uninstall/              # Per-tool uninstallers + full uninstall script
 ├── migrations/             # Version migration scripts
@@ -147,10 +148,11 @@ kodra-macos/
 │   ├── btop.conf           # btop configuration
 │   ├── fastfetch.jsonc     # fastfetch configuration
 │   ├── aliases.sh          # Shell aliases
+│   ├── sidebar-menu.sh    # tmux workspace menu
 │   └── completions/        # zsh + bash completions for kodra
 ├── packages/               # Package lists (cli-tools, core, cloud, etc.)
 ├── tests/
-│   ├── unit/               # 313 structural tests
+│   ├── unit/               # 360 structural tests
 │   └── integration/        # Full install E2E tests
 ├── docs/                   # FAQ, troubleshooting, cheatsheet, roadmap
 └── .github/workflows/
@@ -177,7 +179,7 @@ kodra-macos/
 | Package Manager | apt | apt | Homebrew + .pkg |
 | Desktop | GNOME | Windows Terminal | Native macOS |
 | Docker | Docker CE | Docker CE | Colima or Podman |
-| Terminal | Ghostty | Oh My Posh | Ghostty + Starship |
+| Terminal | Ghostty | Oh My Posh | Ghostty + tmux + Starship |
 | Architecture | x86_64/arm64 | x86_64 | Apple Silicon |
 | Shell | bash | bash | zsh |
 | CI Runners | ubuntu-24.04 | windows-2022 | macos-15 |

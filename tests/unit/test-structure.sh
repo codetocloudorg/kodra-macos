@@ -637,6 +637,206 @@ else
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Ghostty Installer${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GHOSTTY_SH="$ROOT_DIR/install/terminal/ghostty.sh"
+
+if [[ -f "$GHOSTTY_SH" ]]; then
+    assert_pass "ghostty: installer exists"
+else
+    assert_fail "ghostty: installer missing"
+fi
+
+if bash -n "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: valid bash syntax"
+else
+    assert_fail "ghostty: syntax errors"
+fi
+
+if grep -q 'lib/utils.sh' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: sources lib/utils.sh"
+else
+    assert_fail "ghostty: does not source lib/utils.sh"
+fi
+
+if grep -q 'brew_cask_install ghostty' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: installs via brew cask"
+else
+    assert_fail "ghostty: missing brew_cask_install"
+fi
+
+if grep -q 'Cyberpunk' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: uses Cyberpunk theme"
+else
+    assert_fail "ghostty: Cyberpunk theme not configured"
+fi
+
+if grep -q 'background-opacity' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: background opacity configured"
+else
+    assert_fail "ghostty: background opacity missing"
+fi
+
+if grep -q 'quick-terminal-position' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: quick terminal configured"
+else
+    assert_fail "ghostty: quick terminal missing"
+fi
+
+if grep -q 'resize_split' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: split resize keybindings configured"
+else
+    assert_fail "ghostty: split resize keybindings missing"
+fi
+
+if grep -q 'equalize_splits' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: equalize splits keybinding configured"
+else
+    assert_fail "ghostty: equalize splits keybinding missing"
+fi
+
+if grep -q 'new_tab' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: tab keybindings configured"
+else
+    assert_fail "ghostty: tab keybindings missing"
+fi
+
+if grep -q 'reload_config' "$GHOSTTY_SH" 2>/dev/null; then
+    assert_pass "ghostty: reload config keybinding configured"
+else
+    assert_fail "ghostty: reload config keybinding missing"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: tmux Installer${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TMUX_SH="$ROOT_DIR/install/terminal/tmux.sh"
+
+if [[ -f "$TMUX_SH" ]]; then
+    assert_pass "tmux: installer exists"
+else
+    assert_fail "tmux: installer missing"
+fi
+
+if bash -n "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: valid bash syntax"
+else
+    assert_fail "tmux: syntax errors"
+fi
+
+if grep -q 'lib/utils.sh' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: sources lib/utils.sh"
+else
+    assert_fail "tmux: does not source lib/utils.sh"
+fi
+
+if grep -q 'brew_install tmux' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: installs via brew"
+else
+    assert_fail "tmux: missing brew_install"
+fi
+
+if grep -q 'prefix C-a' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: Ctrl+a prefix configured"
+else
+    assert_fail "tmux: Ctrl+a prefix missing"
+fi
+
+if grep -q 'status-style' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: status bar styled"
+else
+    assert_fail "tmux: status bar styling missing"
+fi
+
+if grep -q 'pane-active-border-style' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: pane borders styled"
+else
+    assert_fail "tmux: pane border styling missing"
+fi
+
+if grep -q 'sidebar-menu.sh' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: sidebar menu keybinding configured"
+else
+    assert_fail "tmux: sidebar menu keybinding missing"
+fi
+
+if grep -q 'split-window' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: split keybindings configured"
+else
+    assert_fail "tmux: split keybindings missing"
+fi
+
+if grep -q 'source-file.*tmux.conf' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: reload keybinding configured"
+else
+    assert_fail "tmux: reload keybinding missing"
+fi
+
+# Verify sidebar menu config file exists
+SIDEBAR_SH="$ROOT_DIR/configs/sidebar-menu.sh"
+if [[ -f "$SIDEBAR_SH" ]]; then
+    assert_pass "tmux: sidebar-menu.sh config exists"
+else
+    assert_fail "tmux: sidebar-menu.sh config missing"
+fi
+
+if bash -n "$SIDEBAR_SH" 2>/dev/null; then
+    assert_pass "tmux: sidebar-menu.sh valid syntax"
+else
+    assert_fail "tmux: sidebar-menu.sh syntax errors"
+fi
+
+if grep -q 'display-menu' "$SIDEBAR_SH" 2>/dev/null; then
+    assert_pass "tmux: sidebar uses tmux display-menu"
+else
+    assert_fail "tmux: sidebar missing display-menu"
+fi
+
+# Verify tmux installer deploys sidebar-menu.sh
+if grep -q 'configs/sidebar-menu.sh' "$TMUX_SH" 2>/dev/null; then
+    assert_pass "tmux: installer deploys sidebar-menu.sh"
+else
+    assert_fail "tmux: installer does not deploy sidebar-menu.sh"
+fi
+
+# Verify tmux is in install.sh orchestrator
+if grep -q 'tmux.sh' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "tmux: included in install.sh orchestrator"
+else
+    assert_fail "tmux: missing from install.sh orchestrator"
+fi
+
+# Verify tmux is in doctor health check
+if grep -q 'tmux' "$ROOT_DIR/bin/kodra" 2>/dev/null; then
+    assert_pass "tmux: included in kodra doctor"
+else
+    assert_fail "tmux: missing from kodra doctor"
+fi
+
+# Verify tmux is in uninstall formulae
+if grep -q 'tmux' "$ROOT_DIR/uninstall.sh" 2>/dev/null; then
+    assert_pass "tmux: included in uninstall.sh"
+else
+    assert_fail "tmux: missing from uninstall.sh"
+fi
+
+# Verify tmux.conf cleanup in uninstall
+if grep -q 'tmux.conf' "$ROOT_DIR/uninstall.sh" 2>/dev/null; then
+    assert_pass "uninstall: removes tmux.conf"
+else
+    assert_fail "uninstall: missing tmux.conf cleanup"
+fi
+
+# Verify sidebar-menu.sh cleanup in uninstall
+if grep -q 'sidebar-menu.sh' "$ROOT_DIR/uninstall.sh" 2>/dev/null; then
+    assert_pass "uninstall: removes sidebar-menu.sh"
+else
+    assert_fail "uninstall: missing sidebar-menu.sh cleanup"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo -e "\n${C_CYAN}▶ Test Suite: Dependabot${C_RESET}\n"
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -856,7 +1056,7 @@ fi
 
 # Verify every formula in install.sh is also in uninstall.sh
 INSTALL_FORMULAE_MISSING=0
-for f in bat btop eza fzf ripgrep zoxide yq jq fd fastfetch lazygit gh git-delta direnv httpie neovim shellcheck tldr act starship mise azure-cli azd opentofu kubectl helm k9s colima docker docker-compose lazydocker podman podman-compose; do
+for f in bat btop eza fzf ripgrep zoxide yq jq fd fastfetch lazygit gh git-delta direnv httpie neovim shellcheck tldr act starship mise tmux azure-cli azd opentofu kubectl helm k9s colima docker docker-compose lazydocker podman podman-compose; do
     if ! grep -q "$f" "$UNINSTALL_SH" 2>/dev/null; then
         INSTALL_FORMULAE_MISSING=1
         break

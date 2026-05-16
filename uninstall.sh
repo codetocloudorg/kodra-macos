@@ -20,7 +20,7 @@ KODRA_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/kodra"
 KODRA_BREW_FORMULAE=(
     bat btop eza fzf ripgrep zoxide yq jq fd fastfetch
     lazygit gh git-delta direnv httpie neovim shellcheck tldr act
-    starship mise
+    starship mise tmux
     azure-cli azd opentofu kubectl helm k9s ansible openshift-cli
     colima docker docker-compose docker-credential-helper
     lazydocker trivy dive
@@ -41,6 +41,8 @@ KODRA_CONFIG_FILES=(
     "$HOME/.config/bat/config"
     "$HOME/.config/fastfetch/config.jsonc"
     "$HOME/.config/ghostty/config"
+    "$HOME/.config/ghostty/sidebar-menu.sh"
+    "$HOME/.tmux.conf"
     "$HOME/.config/kodra/podman-env.zsh"
 )
 
@@ -55,7 +57,7 @@ echo "    • All Homebrew formulae (${#KODRA_BREW_FORMULAE[@]} packages)"
 echo "    • All Homebrew casks (${#KODRA_BREW_CASKS[@]} apps)"
 echo "    • PowerShell 7 (.pkg install)"
 echo "    • gh-copilot extension"
-echo "    • All config files (starship, bat, fastfetch, ghostty)"
+echo "    • All config files (starship, bat, fastfetch, ghostty, tmux)"
 echo "    • Shell config (~/.zshrc Kodra lines)"
 echo "    • Podman environment config"
 echo "    • VS Code Kodra settings"

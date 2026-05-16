@@ -5,6 +5,21 @@ All notable changes to Kodra macOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-05-16
+
+### Added
+- tmux terminal multiplexer with Kodra-branded config (Ctrl+a prefix, Cyberpunk status bar)
+- Sidebar agent menu for tmux (`Ctrl+a s`) to switch between workspaces
+- Enhanced Ghostty config: Cyberpunk theme, background opacity/blur, quick terminal (Cmd+`), split resize keybindings, tab management
+- `configs/sidebar-menu.sh` for tmux workspace switching
+
+### Changed
+- Ghostty theme changed from Tokyo Night to Cyberpunk with visual enhancements
+- Doctor health check now includes tmux and terminal fix path
+- Uninstall now removes tmux, tmux.conf, and sidebar-menu.sh
+- Unit tests expanded to 360 (from 313) with Ghostty and tmux coverage
+- E2E pipeline expanded with Ghostty/tmux config verification
+
 ## [0.5.0] - 2026-05-15
 
 ### Added
@@ -113,6 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E workflow mimicking real user install on Apple Silicon runner
 - Clean uninstaller (`uninstall.sh`)
 
+[0.6.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.6.0
 [0.5.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.5.0
 [0.4.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.4.0
 [0.3.0]: https://github.com/codetocloudorg/kodra-macos/releases/tag/v0.3.0

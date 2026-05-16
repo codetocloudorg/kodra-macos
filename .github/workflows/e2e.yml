@@ -206,6 +206,7 @@ jobs:
           # ─── Terminal Tools ─────────────────────────────────
           TERMINAL_TOOLS=(
             "starship"
+            "tmux"
           )
 
           echo ""
@@ -353,6 +354,42 @@ jobs:
             echo "  ✅ fastfetch config exists"
           else
             echo "  ⚠️  fastfetch config not found"
+          fi
+
+          # Check Ghostty config
+          if [ -f "$HOME/.config/ghostty/config" ]; then
+            echo "  ✅ ghostty config exists"
+            if grep -q "Cyberpunk" "$HOME/.config/ghostty/config" 2>/dev/null; then
+              echo "  ✅ ghostty Cyberpunk theme configured"
+            else
+              echo "  ⚠️  ghostty Cyberpunk theme not set"
+            fi
+            if grep -q "quick-terminal-position" "$HOME/.config/ghostty/config" 2>/dev/null; then
+              echo "  ✅ ghostty quick terminal configured"
+            else
+              echo "  ⚠️  ghostty quick terminal not configured"
+            fi
+          else
+            echo "  ⚠️  ghostty config not found"
+          fi
+
+          # Check tmux config
+          if [ -f "$HOME/.tmux.conf" ]; then
+            echo "  ✅ tmux.conf exists"
+            if grep -q "prefix C-a" "$HOME/.tmux.conf" 2>/dev/null; then
+              echo "  ✅ tmux Ctrl+a prefix configured"
+            else
+              echo "  ⚠️  tmux prefix not configured"
+            fi
+          else
+            echo "  ⚠️  tmux.conf not found"
+          fi
+
+          # Check sidebar menu
+          if [ -f "$HOME/.config/ghostty/sidebar-menu.sh" ]; then
+            echo "  ✅ sidebar-menu.sh deployed"
+          else
+            echo "  ⚠️  sidebar-menu.sh not found"
           fi
 
           echo ""
@@ -777,6 +814,8 @@ jobs:
           check_uninstall "Starship config"             "starship.toml"
           check_uninstall "bat config"                  "bat/config"
           check_uninstall "ghostty config"              "ghostty/config"
+          check_uninstall "sidebar-menu.sh"              "sidebar-menu.sh"
+          check_uninstall "tmux.conf"                    "tmux.conf"
           check_uninstall "Podman data dir"             ".local/share/containers"
           check_uninstall "Colima data dir"             ".colima"
           check_uninstall "Docker config dir"           ".docker"
@@ -796,7 +835,7 @@ jobs:
 
           # Verify every expected formula is in the uninstall script
           MISSING=0
-          for f in bat btop eza fzf ripgrep zoxide yq jq fd fastfetch lazygit gh git-delta direnv httpie neovim shellcheck tldr act starship mise azure-cli azd opentofu kubectl helm k9s colima docker docker-compose lazydocker podman podman-compose; do
+          for f in bat btop eza fzf ripgrep zoxide yq jq fd fastfetch lazygit gh git-delta direnv httpie neovim shellcheck tldr act starship mise tmux azure-cli azd opentofu kubectl helm k9s colima docker docker-compose lazydocker podman podman-compose; do
             if ! grep -q "$f" "$UNINSTALL_SH" 2>/dev/null; then
               echo "  ❌ Formula '$f' missing from uninstall"
               MISSING=1

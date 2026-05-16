@@ -19,7 +19,7 @@ curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 - **OR** Podman + Podman Desktop + podman-compose (daemonless alternative)
 - Container security: Trivy (scanner) and dive (image layer explorer)
 - Kubernetes: kubectl, Helm, k9s
-- Modern terminal: Ghostty, Starship prompt, JetBrainsMono Nerd Font
+- Modern terminal: Ghostty (Cyberpunk theme), tmux (workspace multiplexer), Starship prompt, JetBrainsMono Nerd Font
 - CLI tools: bat, eza, fd, fzf, jq, delta, direnv, ripgrep, zoxide, btop, fastfetch, yq, httpie, tldr, shellcheck, neovim
 - Git: lazygit, act (run GitHub Actions locally)
 - Developer tools: mise (polyglot runtime manager), VS Code with extensions
@@ -52,5 +52,5 @@ curl -fsSL https://kodra.macos.codetocloud.io/boot.sh | bash
 
 - License: MIT
 - Platforms: macOS 14+ (Sonoma or later), Apple Silicon (M1/M2/M3/M4)
-- Version: 0.5.0
+- Version: 0.6.0
 - Developed by: Code To Cloud Inc. (Calgary, Alberta, Canada)

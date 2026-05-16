@@ -188,7 +188,8 @@ cmd_doctor() {
                 echo -e "    ${C_CYAN}→ Attempting reinstall...${C_RESET}"
                 bash "$KODRA_DIR/install/cli-tools/${name}.sh" 2>/dev/null || \
                 bash "$KODRA_DIR/install/cloud/${name}.sh" 2>/dev/null || \
-                bash "$KODRA_DIR/install/containers/${name}.sh" 2>/dev/null || true
+                bash "$KODRA_DIR/install/containers/${name}.sh" 2>/dev/null || \
+                bash "$KODRA_DIR/install/terminal/${name}.sh" 2>/dev/null || true
             fi
         fi
     }
@@ -258,6 +259,7 @@ print(data.get('container.runtime', ''))" 2>/dev/null)"
     echo ""
     echo -e "  ${C_WHITE}Terminal:${C_RESET}"
     check_tool "starship" "starship"
+    check_tool "tmux" "tmux"
 
     echo ""
     echo -e "  ${C_GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RESET}"

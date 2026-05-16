@@ -18,7 +18,7 @@
 [![macOS Install (Apple Silicon E2E)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/codetocloudorg/kodra-macos/actions/workflows/e2e.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon-black?logo=apple)](https://github.com/codetocloudorg/kodra-macos)
-[![Version](https://img.shields.io/badge/version-0.5.0-purple)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.6.0-purple)](CHANGELOG.md)
 
 </div>
 
@@ -92,7 +92,8 @@ That's it. From a fresh macOS to `azd up` in minutes.
 ### Terminal & Shell
 | Tool | Purpose |
 |------|---------|
-| Ghostty | GPU-accelerated terminal |
+| Ghostty | GPU-accelerated terminal (Cyberpunk theme) |
+| tmux | Terminal multiplexer with Kodra workspace menu |
 | Starship | Cross-shell prompt |
 | Nerd Fonts | JetBrains Mono + Meslo |
 | zsh config | Aliases, completions, FZF integration |
@@ -180,14 +181,14 @@ kodra-macos/
 │   ├── cloud/              # az, azd, terraform, kubectl, etc.
 │   ├── containers/         # colima, docker-cli, lazydocker, podman
 │   ├── dev-tools/          # mise, vscode
-│   ├── terminal/           # ghostty, starship, nerd-fonts, shell-config
+│   ├── terminal/           # ghostty, tmux, starship, nerd-fonts, shell-config
 │   └── desktop/            # dock, finder, system defaults
 ├── uninstall/              # Per-tool uninstallers
 ├── migrations/             # Version migration scripts
 ├── configs/
 │   └── completions/        # zsh + bash tab completions
 ├── tests/
-│   ├── unit/               # Fast structural tests (313 tests)
+│   ├── unit/               # Fast structural tests (360 tests)
 │   └── integration/        # Real install tests (CI)
 ├── llms.txt                # LLM-friendly summary
 ├── llms-full.txt           # Full LLM documentation
@@ -206,7 +207,7 @@ kodra-macos/
 | Package Manager | apt | apt | Homebrew + `.pkg` |
 | Desktop | GNOME | Windows Terminal | Native macOS |
 | Docker | Docker CE | Docker CE (no Desktop) | Colima or Podman (no Desktop) |
-| Terminal | Ghostty | Oh My Posh | Ghostty + Starship |
+| Terminal | Ghostty | Oh My Posh | Ghostty + tmux + Starship |
 | Architecture | x86_64/arm64 | x86_64 | Apple Silicon |
 | CI Runners | ubuntu-24.04 | windows-2022 | macos-15 |
 

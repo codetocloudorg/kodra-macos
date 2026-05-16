@@ -129,6 +129,7 @@ check_tool "lazydocker"
 echo ""
 echo -e "  ${C_GRAY}Terminal:${C_RESET}"
 check_tool "starship"
+check_tool "tmux"
 
 echo ""
 echo -e "  ${C_GRAY}Dev Tools:${C_RESET}"
@@ -189,6 +190,54 @@ if [[ -f "$HOME/.config/starship.toml" ]]; then
     assert_pass "starship.toml created"
 else
     assert_skip "starship.toml"
+fi
+
+if [[ -f "$HOME/.config/ghostty/config" ]]; then
+    assert_pass "Ghostty config created"
+    if grep -q "Cyberpunk" "$HOME/.config/ghostty/config" 2>/dev/null; then
+        assert_pass "Ghostty Cyberpunk theme configured"
+    else
+        assert_fail "Ghostty Cyberpunk theme missing"
+    fi
+    if grep -q "quick-terminal-position" "$HOME/.config/ghostty/config" 2>/dev/null; then
+        assert_pass "Ghostty quick terminal configured"
+    else
+        assert_fail "Ghostty quick terminal missing"
+    fi
+    if grep -q "resize_split" "$HOME/.config/ghostty/config" 2>/dev/null; then
+        assert_pass "Ghostty split resize keybindings configured"
+    else
+        assert_fail "Ghostty split resize keybindings missing"
+    fi
+else
+    assert_skip "Ghostty config"
+fi
+
+if [[ -f "$HOME/.tmux.conf" ]]; then
+    assert_pass "tmux.conf created"
+    if grep -q "prefix C-a" "$HOME/.tmux.conf" 2>/dev/null; then
+        assert_pass "tmux Ctrl+a prefix configured"
+    else
+        assert_fail "tmux Ctrl+a prefix missing"
+    fi
+    if grep -q "Kodra" "$HOME/.tmux.conf" 2>/dev/null; then
+        assert_pass "tmux Kodra branding present"
+    else
+        assert_fail "tmux Kodra branding missing"
+    fi
+else
+    assert_skip "tmux.conf"
+fi
+
+if [[ -f "$HOME/.config/ghostty/sidebar-menu.sh" ]]; then
+    assert_pass "sidebar-menu.sh deployed"
+    if [[ -x "$HOME/.config/ghostty/sidebar-menu.sh" ]]; then
+        assert_pass "sidebar-menu.sh is executable"
+    else
+        assert_fail "sidebar-menu.sh not executable"
+    fi
+else
+    assert_skip "sidebar-menu.sh"
 fi
 
 if [[ -f "$HOME/.config/fastfetch/config.jsonc" ]]; then
