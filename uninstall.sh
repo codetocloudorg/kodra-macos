@@ -6,6 +6,12 @@
 
 set -e
 
+# Ensure we can read user input (needed when exec'd from install.sh)
+if [ ! -t 0 ] && [ ! -e /dev/tty ]; then
+    echo "  ❌ Error: Uninstall must be run in an interactive terminal."
+    exit 1
+fi
+
 KODRA_DIR="${KODRA_DIR:-$HOME/.kodra}"
 KODRA_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/kodra"
 KODRA_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/kodra"
@@ -56,7 +62,7 @@ echo "    • LaunchAgent plists (Colima, Podman)"
 echo "    • Kodra repo, state, and CLI"
 echo ""
 
-read -rp "  Are you sure? This cannot be undone. [y/N] " confirm
+read -rp "  Are you sure? This cannot be undone. [y/N] " confirm < /dev/tty
 if [[ "$confirm" != [yY] ]]; then
     echo "  Cancelled."
     exit 0
