@@ -314,11 +314,13 @@ fi
 if [ "$INSTALL_CONTAINERS" = "true" ]; then
     log_section "Container Development"
 
+    # Docker CLI is always installed (needed for build commands, compose, etc.)
+    run_installer "$INSTALL_DIR/containers/docker-cli.sh"
+
     if [ "$CONTAINER_RUNTIME" = "podman" ]; then
         run_installer "$INSTALL_DIR/containers/podman.sh"
     else
         run_installer "$INSTALL_DIR/containers/colima.sh"
-        run_installer "$INSTALL_DIR/containers/docker-cli.sh"
         run_installer "$INSTALL_DIR/containers/lazydocker.sh"
     fi
 
