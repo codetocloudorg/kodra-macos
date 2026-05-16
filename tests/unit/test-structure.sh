@@ -429,6 +429,21 @@ for fn in "${UTIL_FUNCS[@]}"; do
 done
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Logging Available in Installer Subshells${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Verify that sourcing utils.sh in a fresh subshell makes all logging functions available
+# This mimics what happens when run_installer spawns 'bash <installer>.sh'
+SUBSHELL_FUNCS=("log_info" "log_success" "log_warn" "log_error" "log_debug" "log_section")
+for fn in "${SUBSHELL_FUNCS[@]}"; do
+    if bash -c "source '$ROOT_DIR/lib/utils.sh' && type $fn" &>/dev/null; then
+        assert_pass "subshell-logging: $fn available via utils.sh"
+    else
+        assert_fail "subshell-logging: $fn NOT available via utils.sh"
+    fi
+done
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo -e "\n${C_CYAN}▶ Test Suite: Dependabot${C_RESET}\n"
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
