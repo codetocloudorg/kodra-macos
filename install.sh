@@ -172,9 +172,10 @@ if [ "$KODRA_CAN_PROMPT" = "true" ]; then
     echo -e "    \033[0;36m3)\033[0m Developer — shell + CLI + Git + Containers"
     echo -e "    \033[0;36m4)\033[0m Cloud Engineer — everything except Desktop tweaks"
     echo -e "    \033[0;31m5)\033[0m Uninstall Kodra — remove all tools and configs"
+    echo -e "    \033[0;90m6)\033[0m Exit"
     echo ""
 
-    printf "    Choose an option [1-5] (default: 1): "
+    printf "    Choose an option [1-6] (default: 1): "
     read -n 1 -r REPLY < /dev/tty
     echo
     echo ""
@@ -205,6 +206,10 @@ if [ "$KODRA_CAN_PROMPT" = "true" ]; then
                 log_error "Uninstall script not found"
                 exit 1
             fi
+            ;;
+        6)
+            echo -e "    \033[0;90mExiting Kodra installer.\033[0m"
+            exit 0
             ;;
         *)
             # Full install (default)
