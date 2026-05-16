@@ -41,6 +41,7 @@ KODRA_CONFIG_FILES=(
     "$HOME/.config/bat/config"
     "$HOME/.config/fastfetch/config.jsonc"
     "$HOME/.config/ghostty/config"
+    "$HOME/.config/kodra/podman-env.zsh"
 )
 
 echo ""
@@ -113,9 +114,10 @@ fi
 # ─── Uninstall PowerShell (.pkg) ──────────────────────────────
 echo "  ▶ Removing PowerShell..."
 
-if command -v pwsh &>/dev/null; then
+if command -v pwsh &>/dev/null || [[ -d "/Applications/PowerShell.app" ]]; then
     sudo rm -rf /usr/local/microsoft/powershell 2>/dev/null || true
     sudo rm -f /usr/local/bin/pwsh 2>/dev/null || true
+    sudo rm -rf "/Applications/PowerShell.app" 2>/dev/null || true
     sudo pkgutil --forget com.microsoft.powershell 2>/dev/null || true
     echo "    ✔ PowerShell removed"
 fi
@@ -125,8 +127,16 @@ echo "  ▶ Removing Homebrew casks..."
 
 for cask in "${KODRA_BREW_CASKS[@]}"; do
     if brew list --cask "$cask" &>/dev/null 2>&1; then
-        brew uninstall --cask "$cask" 2>/dev/null || true
+        brew uninstall --cask --force "$cask" 2>/dev/null || true
         echo "    ✔ $cask removed"
+    fi
+done
+
+# Fallback: remove apps that may not have been installed via cask
+for app in "Visual Studio Code" "Ghostty" "Podman Desktop"; do
+    if [[ -d "/Applications/${app}.app" ]]; then
+        rm -rf "/Applications/${app}.app"
+        echo "    ✔ ${app}.app removed from /Applications"
     fi
 done
 
@@ -135,10 +145,21 @@ echo "  ▶ Removing Homebrew formulae..."
 
 for formula in "${KODRA_BREW_FORMULAE[@]}"; do
     if brew list "$formula" &>/dev/null 2>&1; then
-        brew uninstall "$formula" 2>/dev/null || true
+        brew uninstall --ignore-dependencies "$formula" 2>/dev/null || true
         echo "    ✔ $formula removed"
     fi
 done
+
+# Second pass to catch anything held back by deps
+for formula in "${KODRA_BREW_FORMULAE[@]}"; do
+    if brew list "$formula" &>/dev/null 2>&1; then
+        brew uninstall --force --ignore-dependencies "$formula" 2>/dev/null || true
+        echo "    ✔ $formula force-removed"
+    fi
+done
+
+# Remove orphaned dependencies left behind
+brew autoremove 2>/dev/null || true
 
 # ─── Remove Podman machine data ───────────────────────────────
 echo "  ▶ Cleaning Podman data..."
@@ -170,11 +191,13 @@ fi
 echo "  ▶ Cleaning VS Code settings..."
 
 VSCODE_SETTINGS="$HOME/Library/Application Support/Code/User/settings.json"
-if [[ -f "$VSCODE_SETTINGS" ]] && command -v jq &>/dev/null; then
-    jq 'del(."dev.containers.dockerPath", ."dev.containers.dockerComposePath", ."docker.dockerPath", ."docker.host")' \
-        "$VSCODE_SETTINGS" > "${VSCODE_SETTINGS}.tmp" 2>/dev/null && \
-        mv "${VSCODE_SETTINGS}.tmp" "$VSCODE_SETTINGS"
-    echo "    ✔ VS Code Podman settings removed"
+if [[ -f "$VSCODE_SETTINGS" ]]; then
+    # Use sed since jq may already be uninstalled
+    sed -i '' '/"dev.containers.dockerPath"/d' "$VSCODE_SETTINGS" 2>/dev/null || true
+    sed -i '' '/"dev.containers.dockerComposePath"/d' "$VSCODE_SETTINGS" 2>/dev/null || true
+    sed -i '' '/"docker.dockerPath"/d' "$VSCODE_SETTINGS" 2>/dev/null || true
+    sed -i '' '/"docker.host"/d' "$VSCODE_SETTINGS" 2>/dev/null || true
+    echo "    ✔ VS Code Kodra settings removed"
 fi
 
 # ─── Remove config files ──────────────────────────────────────
