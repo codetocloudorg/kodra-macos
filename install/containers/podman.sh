@@ -47,8 +47,59 @@ log_debug "Podman launchd plist created (auto-start on login)"
 # Install Podman Desktop (GUI for managing containers, images, pods)
 brew_cask_install podman-desktop
 
-# Optional: set up Docker CLI compatibility via podman-docker
+# Set up Docker CLI compatibility via podman-docker
 if ! has_command docker; then
     brew_install podman-docker
     log_debug "podman-docker installed (docker CLI alias)"
+fi
+
+# ─── Environment configuration ────────────────────────────────
+# Set DOCKER_HOST so Docker CLI, Testcontainers, and other tools use Podman socket
+PODMAN_SOCK="$HOME/.local/share/containers/podman/machine/podman.sock"
+mkdir -p "$HOME/.config/kodra"
+cat > "$HOME/.config/kodra/podman-env.zsh" << 'ENVEOF'
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Kodra macOS — Podman Environment
+# Routes Docker CLI, Testcontainers, VS Code, etc. through Podman
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Point Docker CLI at Podman socket
+export DOCKER_HOST="unix://$HOME/.local/share/containers/podman/machine/podman.sock"
+
+# Testcontainers support
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="/var/run/docker.sock"
+export TESTCONTAINERS_RYUK_DISABLED="true"
+ENVEOF
+
+log_debug "Podman environment config written to ~/.config/kodra/podman-env.zsh"
+
+# ─── VS Code settings for Podman ──────────────────────────────
+VSCODE_SETTINGS_DIR="$HOME/Library/Application Support/Code/User"
+VSCODE_SETTINGS="$VSCODE_SETTINGS_DIR/settings.json"
+mkdir -p "$VSCODE_SETTINGS_DIR"
+
+if [[ -f "$VSCODE_SETTINGS" ]]; then
+    # Merge Podman settings into existing VS Code config
+    if command -v jq &>/dev/null; then
+        tmp_settings=$(mktemp)
+        jq '. + {
+            "dev.containers.dockerPath": "podman",
+            "dev.containers.dockerComposePath": "podman-compose",
+            "docker.dockerPath": "podman",
+            "docker.host": "unix:///'"$HOME"'/.local/share/containers/podman/machine/podman.sock"
+        }' "$VSCODE_SETTINGS" > "$tmp_settings" 2>/dev/null && mv "$tmp_settings" "$VSCODE_SETTINGS"
+        log_debug "VS Code settings updated for Podman"
+    else
+        log_debug "jq not available — skipping VS Code settings merge"
+    fi
+else
+    cat > "$VSCODE_SETTINGS" << VSEOF
+{
+    "dev.containers.dockerPath": "podman",
+    "dev.containers.dockerComposePath": "podman-compose",
+    "docker.dockerPath": "podman",
+    "docker.host": "unix://$HOME/.local/share/containers/podman/machine/podman.sock"
+}
+VSEOF
+    log_debug "VS Code settings created for Podman"
 fi

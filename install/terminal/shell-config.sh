@@ -96,6 +96,9 @@ eval "$(zoxide init zsh)" 2>/dev/null
 eval "$(fzf --zsh)" 2>/dev/null
 eval "$(mise activate zsh)" 2>/dev/null
 eval "$(starship init zsh)" 2>/dev/null
+
+# ─── Container runtime environment ───────────────────────────
+[[ -f "$HOME/.config/kodra/podman-env.zsh" ]] && source "$HOME/.config/kodra/podman-env.zsh"
 EOF
 
 # Source Kodra config from .zshrc
