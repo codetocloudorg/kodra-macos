@@ -196,10 +196,9 @@ if [ "$KODRA_CAN_PROMPT" = "true" ]; then
             INSTALL_DESKTOP=false
             ;;
         5)
-            local script_dir
-            script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-            if [ -f "$script_dir/uninstall.sh" ]; then
-                exec bash "$script_dir/uninstall.sh"
+            KODRA_UNINSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+            if [ -f "$KODRA_UNINSTALL_DIR/uninstall.sh" ]; then
+                exec bash "$KODRA_UNINSTALL_DIR/uninstall.sh"
             elif [ -f "$HOME/.kodra/uninstall.sh" ]; then
                 exec bash "$HOME/.kodra/uninstall.sh"
             else
