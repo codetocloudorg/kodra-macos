@@ -475,6 +475,53 @@ jobs:
           echo ""
 
       # ─────────────────────────────────────────────────────────────
+      # Verify install menu structure (6 options including uninstall/exit)
+      # ─────────────────────────────────────────────────────────────
+      - name: "📋 Verify install menu structure"
+        if: always()
+        run: |
+          set +e
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Install Menu Structure Verification              │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          INSTALL_SH="$HOME/.kodra/install.sh"
+
+          check_menu() {
+            local what="$1"
+            local pattern="$2"
+            if grep -q "$pattern" "$INSTALL_SH" 2>/dev/null; then
+              printf "  ✅ %-40s present\n" "$what"
+            else
+              printf "  ❌ %-40s MISSING\n" "$what"
+            fi
+          }
+
+          echo "  Install profile options:"
+          check_menu "Option 1: Full Install"         "Full Install"
+          check_menu "Option 2: Minimal"              "Minimal"
+          check_menu "Option 3: Developer"            "Developer"
+          check_menu "Option 4: Cloud Engineer"       "Cloud Engineer"
+          check_menu "Option 5: Uninstall Kodra"      "Uninstall Kodra"
+          check_menu "Option 6: Exit"                 "Exit"
+
+          echo ""
+          echo "  Menu mechanics:"
+          check_menu "Prompt shows [1-6]"             "1-6"
+          check_menu "Reads from /dev/tty"            "< /dev/tty"
+          check_menu "Uninstall exec's script"        "exec bash.*uninstall"
+          check_menu "Exit calls exit 0"              "exit 0"
+
+          echo ""
+          echo "  Container runtime submenu:"
+          check_menu "Docker option"                  "Docker (Colima"
+          check_menu "Podman option"                  "Podman (Podman"
+          check_menu "Prompt shows [1-2]"             "1-2"
+
+          echo ""
+
+      # ─────────────────────────────────────────────────────────────
       # Verify Podman installer structure (without running it)
       # ─────────────────────────────────────────────────────────────
       - name: "🦭 Verify Podman installer structure"

@@ -469,6 +469,68 @@ else
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Install Menu Structure${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Verify all 6 menu options exist
+if grep -q 'Full Install' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: option 1 Full Install present"
+else
+    assert_fail "install-menu: option 1 Full Install missing"
+fi
+
+if grep -q 'Minimal' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: option 2 Minimal present"
+else
+    assert_fail "install-menu: option 2 Minimal missing"
+fi
+
+if grep -q 'Developer' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: option 3 Developer present"
+else
+    assert_fail "install-menu: option 3 Developer missing"
+fi
+
+if grep -q 'Cloud Engineer' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: option 4 Cloud Engineer present"
+else
+    assert_fail "install-menu: option 4 Cloud Engineer missing"
+fi
+
+if grep -q 'Uninstall Kodra' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: option 5 Uninstall present"
+else
+    assert_fail "install-menu: option 5 Uninstall missing"
+fi
+
+if grep -q 'Exit' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: option 6 Exit present"
+else
+    assert_fail "install-menu: option 6 Exit missing"
+fi
+
+# Verify prompt accepts [1-6]
+if grep -q '1-6' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: prompt shows [1-6] range"
+else
+    assert_fail "install-menu: prompt range incorrect"
+fi
+
+# Verify uninstall option exec's the uninstall script
+if grep -q 'exec bash.*uninstall' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: uninstall exec's uninstall.sh"
+else
+    assert_fail "install-menu: uninstall does not exec uninstall.sh"
+fi
+
+# Verify exit option calls exit 0
+if grep -q 'exit 0' "$ROOT_DIR/install.sh" 2>/dev/null; then
+    assert_pass "install-menu: exit calls exit 0"
+else
+    assert_fail "install-menu: exit does not call exit 0"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo -e "\n${C_CYAN}▶ Test Suite: Container Runtime Selection${C_RESET}\n"
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
