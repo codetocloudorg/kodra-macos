@@ -3,6 +3,9 @@
 # Kodra macOS — Utility Functions
 #
 
+# Source logging library (required for log_debug, log_info, etc.)
+source "$(dirname "${BASH_SOURCE[0]}")/logging.sh"
+
 # Run an installer script with error handling and failure tracking
 run_installer() {
     local script="$1"

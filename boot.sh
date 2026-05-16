@@ -129,7 +129,23 @@ show_done "Xcode Command Line Tools ready"
 # Check for Homebrew
 if ! command -v brew &>/dev/null; then
     show_step "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+    # When invoked via 'curl | bash', stdin is a pipe (not a TTY).
+    # Homebrew requires an interactive TTY for sudo password prompts.
+    # Redirect /dev/tty to stdin so Homebrew can prompt the user.
+    if [[ ! -t 0 ]]; then
+        if [[ -e /dev/tty ]]; then
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" < /dev/tty
+        else
+            show_error "Homebrew requires an interactive terminal for installation."
+            echo -e "    ${C_GRAY}Please download and run the installer directly:${C_RESET}"
+            echo -e "    ${C_GRAY}  curl -fsSL https://kodra.macos.codetocloud.io/boot.sh -o boot.sh${C_RESET}"
+            echo -e "    ${C_GRAY}  chmod +x boot.sh && ./boot.sh${C_RESET}"
+            exit 1
+        fi
+    else
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
 
     # Add Homebrew to PATH for this session
     if [ -f /opt/homebrew/bin/brew ]; then
