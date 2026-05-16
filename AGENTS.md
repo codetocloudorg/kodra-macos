@@ -9,7 +9,7 @@ Kodra macOS is a one-command Apple Silicon developer environment. It transforms 
 Key focuses:
 - Azure cloud development (CLI, azd, Bicep, Terraform, OpenTofu)
 - Colima + Docker CLI (no Docker Desktop license required), Kubernetes (kubectl, Helm, k9s)
-- Modern terminal experience (Starship prompt, Ghostty terminal, Nerd Fonts, fzf, zoxide, eza, bat)
+- Modern terminal experience (Starship prompt, Ghostty terminal, tmux multiplexer, Nerd Fonts, fzf, zoxide, eza, bat)
 - GitHub Copilot CLI for AI-powered terminal workflows
 - macOS-native setup (Homebrew, launchd, zsh)
 
@@ -41,7 +41,7 @@ kodra-macos/
 │   ├── cloud/                 #   azure-cli.sh, azd.sh, bicep.sh, terraform.sh, opentofu.sh,
 │   │                          #   powershell.sh, kubectl.sh, helm.sh, k9s.sh
 │   ├── containers/            #   colima.sh, docker-cli.sh, lazydocker.sh
-│   ├── terminal/              #   ghostty.sh, nerd-fonts.sh, starship.sh, shell-config.sh
+│   ├── terminal/              #   ghostty.sh, tmux.sh, nerd-fonts.sh, starship.sh, shell-config.sh
 │   ├── cli-tools/             #   github-cli.sh, copilot-cli.sh, fzf.sh, lazygit.sh,
 │   │                          #   zoxide.sh, eza.sh, bat.sh, btop.sh, fastfetch.sh,
 │   │                          #   ripgrep.sh, yq.sh, fd.sh
@@ -76,6 +76,7 @@ Kodra macOS runs **exclusively on macOS with Apple Silicon**. Key differences fr
 - **zsh** is the default shell (not bash) — config goes in `~/.zshrc`
 - **Starship** is the prompt (not Oh My Posh) — config at `~/.config/starship.toml`
 - **Ghostty** is the terminal emulator (not Windows Terminal)
+- **tmux** is the terminal multiplexer with Kodra workspace menu
 - **Colima** provides Docker (not Docker CE directly) — lightweight Lima VM
 - **launchd** replaces systemd — plist files in `~/Library/LaunchAgents/`
 - **PowerShell** installed via native `.pkg` from Microsoft GitHub releases (not Homebrew)

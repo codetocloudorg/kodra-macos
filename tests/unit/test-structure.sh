@@ -265,6 +265,7 @@ UNINSTALL_SCRIPTS=(
     "uninstall/ripgrep.sh"
     "uninstall/yq.sh"
     "uninstall/zoxide.sh"
+    "uninstall/tmux.sh"
 )
 
 for f in "${UNINSTALL_SCRIPTS[@]}"; do
