@@ -590,6 +590,132 @@ else
 fi
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo -e "\n${C_CYAN}▶ Test Suite: Uninstall Script${C_RESET}\n"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+UNINSTALL_SH="$ROOT_DIR/uninstall.sh"
+
+if [[ -f "$UNINSTALL_SH" ]]; then
+    assert_pass "uninstall: uninstall.sh exists"
+else
+    assert_fail "uninstall: uninstall.sh missing"
+fi
+
+if bash -n "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: valid bash syntax"
+else
+    assert_fail "uninstall: syntax errors"
+fi
+
+# Verify it removes Homebrew formulae
+if grep -q 'KODRA_BREW_FORMULAE' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes Homebrew formulae"
+else
+    assert_fail "uninstall: does not remove Homebrew formulae"
+fi
+
+# Verify it removes Homebrew casks
+if grep -q 'KODRA_BREW_CASKS' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes Homebrew casks"
+else
+    assert_fail "uninstall: does not remove Homebrew casks"
+fi
+
+# Verify it removes PowerShell
+if grep -q 'powershell' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes PowerShell"
+else
+    assert_fail "uninstall: does not remove PowerShell"
+fi
+
+# Verify it removes gh-copilot extension
+if grep -q 'gh extension remove' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes gh-copilot extension"
+else
+    assert_fail "uninstall: does not remove gh-copilot extension"
+fi
+
+# Verify it stops services before removing
+if grep -q 'colima stop' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: stops Colima before removal"
+else
+    assert_fail "uninstall: does not stop Colima"
+fi
+
+if grep -q 'podman machine stop' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: stops Podman machine before removal"
+else
+    assert_fail "uninstall: does not stop Podman machine"
+fi
+
+# Verify it removes launchd plists
+if grep -q 'com.kodra.colima.plist' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes Colima launchd plist"
+else
+    assert_fail "uninstall: does not remove Colima plist"
+fi
+
+if grep -q 'com.kodra.podman.plist' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes Podman launchd plist"
+else
+    assert_fail "uninstall: does not remove Podman plist"
+fi
+
+# Verify it cleans VS Code settings
+if grep -q 'dev.containers.dockerPath' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes VS Code Podman settings"
+else
+    assert_fail "uninstall: does not clean VS Code settings"
+fi
+
+# Verify it cleans shell config
+if grep -q 'zshrc' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: cleans ~/.zshrc"
+else
+    assert_fail "uninstall: does not clean ~/.zshrc"
+fi
+
+# Verify it removes config files (starship, bat, fastfetch)
+if grep -q 'starship.toml' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes starship config"
+else
+    assert_fail "uninstall: does not remove starship config"
+fi
+
+if grep -q 'bat/config' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes bat config"
+else
+    assert_fail "uninstall: does not remove bat config"
+fi
+
+# Verify it cleans Podman/Colima data dirs
+if grep -q '.local/share/containers' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes Podman data directory"
+else
+    assert_fail "uninstall: does not remove Podman data"
+fi
+
+if grep -q '.colima' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: removes Colima data directory"
+else
+    assert_fail "uninstall: does not remove Colima data"
+fi
+
+# Verify it prompts for confirmation
+if grep -q 'read -rp' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: prompts for confirmation"
+else
+    assert_fail "uninstall: no confirmation prompt"
+fi
+
+# Verify it runs brew cleanup
+if grep -q 'brew cleanup' "$UNINSTALL_SH" 2>/dev/null; then
+    assert_pass "uninstall: runs brew cleanup"
+else
+    assert_fail "uninstall: does not run brew cleanup"
+fi
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Summary
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo ""

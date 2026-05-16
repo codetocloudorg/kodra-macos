@@ -690,9 +690,50 @@ jobs:
       - name: "🗑️ Verify uninstall script"
         if: always()
         run: |
-          echo "Validating uninstall.sh syntax..."
-          bash -n "$HOME/.kodra/uninstall.sh"
-          echo "✅ uninstall.sh has valid syntax"
+          set +e
+          echo "┌──────────────────────────────────────────────────┐"
+          echo "│  Uninstall Script Verification                    │"
+          echo "└──────────────────────────────────────────────────┘"
+          echo ""
+
+          UNINSTALL_SH="$HOME/.kodra/uninstall.sh"
+
+          echo "  Validating syntax..."
+          bash -n "$UNINSTALL_SH"
+          echo "  ✅ uninstall.sh has valid syntax"
+
+          # Verify it covers all installed tools
+          echo ""
+          echo "  Checking uninstall coverage:"
+
+          check_uninstall() {
+            local what="$1"
+            local pattern="$2"
+            if grep -q "$pattern" "$UNINSTALL_SH" 2>/dev/null; then
+              printf "  ✅ %-35s covered\n" "$what"
+            else
+              printf "  ❌ %-35s NOT covered\n" "$what"
+            fi
+          }
+
+          check_uninstall "Homebrew formulae"          "KODRA_BREW_FORMULAE"
+          check_uninstall "Homebrew casks"              "KODRA_BREW_CASKS"
+          check_uninstall "PowerShell .pkg"             "powershell"
+          check_uninstall "gh-copilot extension"        "gh extension remove"
+          check_uninstall "Colima stop"                 "colima stop"
+          check_uninstall "Podman machine stop"         "podman machine stop"
+          check_uninstall "Colima launchd plist"        "com.kodra.colima"
+          check_uninstall "Podman launchd plist"        "com.kodra.podman"
+          check_uninstall "VS Code settings cleanup"    "dev.containers.dockerPath"
+          check_uninstall "Shell config cleanup"        "zshrc"
+          check_uninstall "Starship config"             "starship.toml"
+          check_uninstall "bat config"                  "bat/config"
+          check_uninstall "Podman data dir"             ".local/share/containers"
+          check_uninstall "Colima data dir"             ".colima"
+          check_uninstall "Confirmation prompt"         "read -rp"
+          check_uninstall "Brew cleanup"                "brew cleanup"
+
+          echo ""
 
       # ─────────────────────────────────────────────────────────────
       # Verify HTTPS site is live
