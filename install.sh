@@ -165,15 +165,16 @@ fi
 
 # Check if interactive
 if [ "$KODRA_CAN_PROMPT" = "true" ]; then
-    echo -e "    Choose what to install:"
+    echo -e "    Choose what to do:"
     echo ""
     echo -e "    \033[0;36m1)\033[0m Full Install (recommended) — all tools"
     echo -e "    \033[0;36m2)\033[0m Minimal — shell + CLI tools only"
     echo -e "    \033[0;36m3)\033[0m Developer — shell + CLI + Git + Containers"
     echo -e "    \033[0;36m4)\033[0m Cloud Engineer — everything except Desktop tweaks"
+    echo -e "    \033[0;31m5)\033[0m Uninstall Kodra — remove all tools and configs"
     echo ""
 
-    printf "    Choose an option [1-4] (default: 1): "
+    printf "    Choose an option [1-5] (default: 1): "
     read -n 1 -r REPLY < /dev/tty
     echo
     echo ""
@@ -192,6 +193,18 @@ if [ "$KODRA_CAN_PROMPT" = "true" ]; then
             ;;
         4)
             INSTALL_DESKTOP=false
+            ;;
+        5)
+            local script_dir
+            script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+            if [ -f "$script_dir/uninstall.sh" ]; then
+                exec bash "$script_dir/uninstall.sh"
+            elif [ -f "$HOME/.kodra/uninstall.sh" ]; then
+                exec bash "$HOME/.kodra/uninstall.sh"
+            else
+                log_error "Uninstall script not found"
+                exit 1
+            fi
             ;;
         *)
             # Full install (default)
